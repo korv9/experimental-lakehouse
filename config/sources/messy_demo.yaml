@@ -1,0 +1,25 @@
+# Source definition for the "messy" demo — a deliberately unstructured feed used
+# to show raw -> structured cleaning. Same config shape as any other source.
+
+source_name: messy_demo
+source_type: rest
+base_url: https://example.com
+endpoint: /messy
+response_format: json
+
+authentication:
+  type: none
+
+pagination:
+  type: page_number
+  page_parameter: page
+  page_size_parameter: limit
+  page_size: 100
+
+incremental:
+  enabled: true
+  strategy: updated_at
+  watermark_column: ingested_at
+
+destination:
+  bronze_table: bronze.messy_demo_records
