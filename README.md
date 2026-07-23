@@ -359,6 +359,11 @@ experimental-lakehouse/
 │   │   ├── bronze_to_silver/
 │   │   └── silver_to_gold/
 │   │
+│   ├── schemas/
+│   │   ├── bronze/
+│   │   ├── silver/
+│   │   └── gold/
+│   │
 │   ├── quality/
 │   ├── metadata/
 │   ├── logging/

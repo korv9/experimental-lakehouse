@@ -1,0 +1,28 @@
+# Example source definition.
+#
+# The long-term goal is configuration-driven source onboarding: a new source
+# should be connectable by adding a file like this rather than writing a new
+# notebook or pipeline. This file is a template — replace the values below.
+
+source_name: example_api
+source_type: rest
+base_url: https://api.example.org
+endpoint: /records
+response_format: json
+
+authentication:
+  type: none
+
+pagination:
+  type: page_number
+  page_parameter: page
+  page_size_parameter: limit
+  page_size: 100
+
+incremental:
+  enabled: true
+  strategy: updated_at
+  watermark_column: modified_at
+
+destination:
+  bronze_table: bronze.example_api_records
