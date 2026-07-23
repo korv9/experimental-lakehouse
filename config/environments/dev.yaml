@@ -1,0 +1,14 @@
+# Environment config: which catalog + storage the pipelines target.
+# Keeping this separate lets the same code run against dev / prod by swapping
+# the catalog name, without touching transforms.
+
+environment: dev
+catalog: dev_lakehouse
+landing_volume: /Volumes/dev/landing   # where raw files land for Auto Loader / DLT
+
+schemas:
+  platform: platform   # control tables (operational metadata)
+  bronze: bronze       # raw, append-only
+  silver: silver       # cleaned, conformed entities
+  gold: gold           # data products
+  sandbox: sandbox     # isolated experiments

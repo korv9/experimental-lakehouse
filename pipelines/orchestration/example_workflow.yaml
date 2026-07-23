@@ -1,0 +1,24 @@
+# Example Databricks Workflow (Job) that runs the pipeline end to end.
+# Deploy with Databricks Asset Bundles (`databricks bundle deploy`).
+# Tasks run in dependency order: ingest -> transform (DLT) -> export.
+
+resources:
+  jobs:
+    example_pipeline:
+      name: example_pipeline
+      tasks:
+        - task_key: ingest
+          notebook_task:
+            notebook_path: ../../notebooks/ingestion/01_run_ingestion
+
+        - task_key: transform
+          depends_on:
+            - task_key: ingest
+          pipeline_task:               # runs the DLT medallion pipeline
+            pipeline_id: ${var.dlt_pipeline_id}
+
+        - task_key: export
+          depends_on:
+            - task_key: transform
+          notebook_task:
+            notebook_path: ../../notebooks/transformations/02_run_transforms

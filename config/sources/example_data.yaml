@@ -1,0 +1,27 @@
+# Source definition for the walkthrough example.
+# Onboarding a source = adding a file like this (config over duplication).
+# The ingestion runner reads it and reuses the generic REST client — no bespoke
+# pipeline code per source.
+
+source_name: example_data
+source_type: rest
+base_url: https://example.com
+endpoint: /data
+response_format: json
+
+authentication:
+  type: none            # example.com/data is public; see src/ingestion/authentication/
+
+pagination:
+  type: page_number     # walk ?page=1,2,3... until total_pages is reached
+  page_parameter: page
+  page_size_parameter: limit
+  page_size: 100
+
+incremental:
+  enabled: true
+  strategy: updated_at
+  watermark_column: ingested_at   # silver reads only rows newer than last run
+
+destination:
+  bronze_table: bronze.example_data_records

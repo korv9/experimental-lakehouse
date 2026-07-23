@@ -1,0 +1,28 @@
+# DQX data-quality rules for silver.works (data quality as configuration).
+# Loaded and applied by src/quality/dqx_checks.py. Each rule has a criticality:
+#   error -> failing rows are quarantined (kept out of silver)
+#   warn  -> row is kept but the failure is recorded
+# NOTE: function names/arguments follow the installed Databricks Labs DQX version.
+
+- name: work_id_not_null
+  criticality: error
+  check:
+    function: is_not_null
+    arguments:
+      column: work_id
+
+- name: title_not_null
+  criticality: error
+  check:
+    function: is_not_null
+    arguments:
+      column: title
+
+- name: year_in_range
+  criticality: warn
+  check:
+    function: is_in_range
+    arguments:
+      column: year
+      min_limit: 0
+      max_limit: 2100
