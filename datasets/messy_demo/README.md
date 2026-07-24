@@ -39,3 +39,8 @@ python demo_local.py          # pure-Python, no Spark needed — prints before/a
 pytest tests/unit/test_cleaning.py            # cleaning logic
 pytest tests/integration/test_messy_pipeline.py   # full Spark run (needs pyspark)
 ```
+
+On Databricks, the same flow runs declaratively as a DLT pipeline:
+`pipelines/transformations/messy_medallion_dlt.py` — Auto Loader → cleaning UDF
++ `@dlt.expect_*` quality gates → `apply_changes` dedup (latest per `record_id`)
+→ gold aggregate.
