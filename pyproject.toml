@@ -18,6 +18,9 @@ dependencies = [
     "databricks-sdk>=0.20",
 ]
 
+[project.scripts]
+lakehouse-api = "lakehouse_platform.tools.api_explorer:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
@@ -39,7 +42,9 @@ packages = [
     "lakehouse_platform.quality",
     "lakehouse_platform.schemas",
     "lakehouse_platform.transforms",
+    "lakehouse_platform.tools",
     "products",
+    "products.philosophy_litterature",
     "products.messy_records",
     "products.messy_records.pipelines",
     "products.messy_records.tables",
@@ -74,6 +79,7 @@ products = "products"
 "products.messy_records.tables.silver.records" = ["*.yaml"]
 "products.example_works.pipelines" = ["*.yaml"]
 "products.example_works.tables.silver.works" = ["*.yaml"]
+"products.philosophy_litterature" = ["*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

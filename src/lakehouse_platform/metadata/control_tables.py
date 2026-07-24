@@ -7,9 +7,23 @@ module is the single place that reads and writes them.
 from __future__ import annotations
 
 import uuid
+from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from pyspark.sql import Row, SparkSession
+from pyspark.sql import functions as F
+
+
+@dataclass(frozen=True)
+class IngestionCheckpoint:
+    pipeline_name: str
+    source_name: str
+    partition_key: str
+    cursor: str | None
+    watermark_value: str | None
+    page_number: int
+    status: str
+    run_id: str | None
 
 
 def _now() -> datetime:
@@ -25,16 +39,34 @@ def create_platform_tables(spark: SparkSession, catalog: str) -> None:
             started_at TIMESTAMP, completed_at TIMESTAMP, status STRING,
             records_read BIGINT, records_written BIGINT, records_rejected BIGINT,
             error_message STRING)
+        USING DELTA
     """)
     spark.sql(f"""
         CREATE TABLE IF NOT EXISTS {catalog}.platform.ingestion_state (
             source_name STRING, watermark_column STRING,
             watermark_value STRING, updated_at TIMESTAMP)
+        USING DELTA
     """)
     spark.sql(f"""
         CREATE TABLE IF NOT EXISTS {catalog}.platform.data_quality_results (
             run_id STRING, table_name STRING, check_name STRING, status STRING,
             metric DOUBLE, threshold DOUBLE, checked_at TIMESTAMP)
+        USING DELTA
+    """)
+    spark.sql(f"""
+        CREATE TABLE IF NOT EXISTS {catalog}.platform.ingestion_checkpoints (
+            pipeline_name STRING, source_name STRING, partition_key STRING,
+            cursor STRING, watermark_value STRING, page_number BIGINT,
+            status STRING, run_id STRING, updated_at TIMESTAMP)
+        USING DELTA
+    """)
+    spark.sql(f"""
+        CREATE TABLE IF NOT EXISTS {catalog}.platform.download_manifest (
+            source_name STRING, source_record_id STRING, source_url STRING,
+            volume_path STRING, sha256 STRING, size_bytes BIGINT,
+            source_etag STRING, downloaded_at TIMESTAMP,
+            status STRING, run_id STRING)
+        USING DELTA
     """)
 
 
@@ -85,4 +117,90 @@ def set_watermark(spark: SparkSession, catalog: str, source_name: str,
         WHEN NOT MATCHED THEN INSERT
             (source_name, watermark_column, watermark_value, updated_at)
             VALUES ('{source_name}', '{column}', '{value}', current_timestamp())
+    """)
+
+
+def get_checkpoint(
+    spark: SparkSession,
+    catalog: str,
+    *,
+    pipeline_name: str,
+    source_name: str,
+    partition_key: str = "default",
+) -> IngestionCheckpoint | None:
+    """Return durable state for resuming one source partition."""
+    rows = (
+        spark.table(f"{catalog}.platform.ingestion_checkpoints")
+        .where(
+            (F.col("pipeline_name") == pipeline_name)
+            & (F.col("source_name") == source_name)
+            & (F.col("partition_key") == partition_key)
+        )
+        .orderBy(F.col("updated_at").desc())
+        .limit(1)
+        .collect()
+    )
+    if not rows:
+        return None
+    row = rows[0]
+    return IngestionCheckpoint(
+        pipeline_name=row["pipeline_name"],
+        source_name=row["source_name"],
+        partition_key=row["partition_key"],
+        cursor=row["cursor"],
+        watermark_value=row["watermark_value"],
+        page_number=row["page_number"],
+        status=row["status"],
+        run_id=row["run_id"],
+    )
+
+
+def _sql_string(value: str | None) -> str:
+    return "NULL" if value is None else "'" + value.replace("'", "''") + "'"
+
+
+def set_checkpoint(
+    spark: SparkSession,
+    catalog: str,
+    checkpoint: IngestionCheckpoint,
+) -> None:
+    """Atomically upsert a cursor/watermark only after a page is committed."""
+    values = {
+        key: _sql_string(value)
+        for key, value in {
+            "pipeline": checkpoint.pipeline_name,
+            "source": checkpoint.source_name,
+            "partition": checkpoint.partition_key,
+            "cursor": checkpoint.cursor,
+            "watermark": checkpoint.watermark_value,
+            "status": checkpoint.status,
+            "run_id": checkpoint.run_id,
+        }.items()
+    }
+    spark.sql(f"""
+        MERGE INTO {catalog}.platform.ingestion_checkpoints t
+        USING (
+            SELECT {values["pipeline"]} AS pipeline_name,
+                   {values["source"]} AS source_name,
+                   {values["partition"]} AS partition_key
+        ) s
+        ON t.pipeline_name = s.pipeline_name
+          AND t.source_name = s.source_name
+          AND t.partition_key = s.partition_key
+        WHEN MATCHED THEN UPDATE SET
+            cursor = {values["cursor"]},
+            watermark_value = {values["watermark"]},
+            page_number = {int(checkpoint.page_number)},
+            status = {values["status"]},
+            run_id = {values["run_id"]},
+            updated_at = current_timestamp()
+        WHEN NOT MATCHED THEN INSERT (
+            pipeline_name, source_name, partition_key, cursor, watermark_value,
+            page_number, status, run_id, updated_at
+        ) VALUES (
+            {values["pipeline"]}, {values["source"]}, {values["partition"]},
+            {values["cursor"]}, {values["watermark"]},
+            {int(checkpoint.page_number)}, {values["status"]},
+            {values["run_id"]}, current_timestamp()
+        )
     """)

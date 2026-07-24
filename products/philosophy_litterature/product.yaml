@@ -1,0 +1,50 @@
+product:
+  id: philosophy_litterature
+  title: Philosophy Books
+  owner: data-platform
+  status: discovery
+  purpose: >
+    Measure semantic change in preserved, digitized philosophical writing from
+    1700 onward without presenting the corpus as representative of all people.
+
+scope:
+  initial_languages: [en]
+  start_year: 1700
+  document_types: [philosophy, political_theory]
+  rights_policy: public_domain_or_explicitly_reusable
+  period_grain: decade
+
+sources:
+  discovery: [gutendex]
+  full_text: [project_gutenberg, wikisource]
+  bibliography: [open_library, libris]
+  enrichment: [wikidata]
+
+unity_catalog:
+  catalog_variable: catalog
+  source_volume: ${catalog}.landing.source_files
+  checkpoint_volume: ${catalog}.platform.checkpoints
+  control_tables:
+    - ${catalog}.platform.pipeline_runs
+    - ${catalog}.platform.ingestion_checkpoints
+    - ${catalog}.platform.download_manifest
+  planned_tables:
+    - ${catalog}.bronze.philosophy_litterature_work_raw
+    - ${catalog}.bronze.philosophy_litterature_text_manifest
+    - ${catalog}.silver.philosophy_litterature_work
+    - ${catalog}.silver.philosophy_litterature_text_version
+    - ${catalog}.silver.philosophy_litterature_text_chunk
+    - ${catalog}.gold.philosophy_litterature_dim_work
+    - ${catalog}.gold.philosophy_litterature_dim_author
+    - ${catalog}.gold.philosophy_litterature_dim_time
+    - ${catalog}.gold.philosophy_litterature_fact_chunk_embedding
+    - ${catalog}.gold.philosophy_litterature_fact_period_metrics
+    - ${catalog}.gold.philosophy_litterature_fact_semantic_shift
+
+guardrails:
+  - preserve_raw_source_files
+  - retain_source_and_license_lineage
+  - separate_original_edition_and_translation_dates
+  - report_coverage_with_every_period_metric
+  - freeze_embedding_model_for_longitudinal_comparison
+  - balance_period_samples_by_author_genre_and_source

@@ -11,13 +11,26 @@ from typing import Any
 
 import requests
 
+from lakehouse_platform.ingestion.rate_limit import RateLimiter
+
 
 class RestClient:
-    def __init__(self, base_url: str, *, timeout: int = 30, max_retries: int = 3, auth=None):
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        timeout: int = 30,
+        max_retries: int = 3,
+        auth=None,
+        rate_limiter: RateLimiter | None = None,
+        session: requests.Session | None = None,
+    ):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.auth = auth  # an auth strategy with .apply(headers) -> headers
+        self.rate_limiter = rate_limiter
+        self.session = session or requests.Session()
 
     def get(self, endpoint: str, params: dict[str, Any] | None = None) -> dict:
         """GET one page and return parsed JSON.
@@ -29,12 +42,24 @@ class RestClient:
         headers = self.auth.apply({}) if self.auth else {}
 
         for attempt in range(1, self.max_retries + 1):
-            resp = requests.get(url, params=params, headers=headers, timeout=self.timeout)
+            if self.rate_limiter:
+                self.rate_limiter.wait()
+            resp = self.session.get(
+                url,
+                params=params,
+                headers=headers,
+                timeout=self.timeout,
+            )
             if resp.status_code == 200:
                 return resp.json()
-            transient = resp.status_code in (429, 500, 502, 503)
+            transient = resp.status_code in (429, 500, 502, 503, 504)
             if transient and attempt < self.max_retries:
-                time.sleep(2 ** attempt)  # back off: 2s, 4s, 8s
+                retry_after = resp.headers.get("Retry-After")
+                try:
+                    delay = float(retry_after) if retry_after else 2 ** attempt
+                except ValueError:
+                    delay = 2 ** attempt
+                time.sleep(max(0, delay))
                 continue
             resp.raise_for_status()
         raise RuntimeError(f"GET {url} failed after {self.max_retries} attempts")

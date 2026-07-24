@@ -1,0 +1,145 @@
+# Live-verified 2026-07-25 with lakehouse-api.
+# Replace this User-Agent with a project name and contact before scheduled ingestion.
+x-default-headers: &default_headers
+  User-Agent: AtlasOfHumanThought/0.1 (educational portfolio)
+
+endpoints:
+  gutendex_plato:
+    method: GET
+    url: https://gutendex.com/books/
+    headers: *default_headers
+    params:
+      search: plato
+    timeout: 30
+
+  gutenberg_republic_full_text:
+    method: GET
+    url: https://www.gutenberg.org/ebooks/1497.txt.utf-8
+    headers: *default_headers
+    timeout: 30
+
+  wikisource_republic_rendered:
+    # action=parse resolves the page transclusions; prop=extracts did not.
+    method: GET
+    url: https://en.wikisource.org/w/api.php
+    headers: *default_headers
+    params:
+      action: parse
+      page: The Republic of Plato
+      prop: text|displaytitle
+      format: json
+      formatversion: 2
+      redirects: 1
+    timeout: 30
+
+  internet_archive_plato:
+    method: GET
+    url: https://archive.org/advancedsearch.php
+    headers: *default_headers
+    params:
+      q: creator:Plato AND mediatype:texts
+      fl[]: identifier,title,creator
+      rows: 2
+      page: 1
+      output: json
+    timeout: 30
+
+  open_library_plato:
+    method: GET
+    url: https://openlibrary.org/search.json
+    headers: *default_headers
+    params:
+      q: Plato
+      limit: 2
+      fields: key,title,author_name,first_publish_year
+    timeout: 30
+
+  wikidata_plato:
+    method: GET
+    url: https://www.wikidata.org/wiki/Special:EntityData/Q859.json
+    headers: *default_headers
+    params:
+      flavor: simple
+    timeout: 30
+
+  libris_nietzsche:
+    method: GET
+    url: https://libris.kb.se/find.jsonld
+    headers: *default_headers
+    params:
+      q: Nietzsche
+      _limit: 2
+    timeout: 30
+
+  library_of_congress_philosophy:
+    method: GET
+    url: https://www.loc.gov/books/
+    headers: *default_headers
+    params:
+      q: philosophy
+      fo: json
+      c: 2
+      at: results
+    timeout: 30
+
+  riksdagen_anforanden:
+    method: GET
+    url: https://data.riksdagen.se/anforandelista/
+    headers: *default_headers
+    params:
+      rm: 2024/25
+      utformat: json
+      sz: 2
+      anftyp: Nej
+    timeout: 30
+
+  riksdagen_speech_full_text:
+    # Stable example discovered through riksdagen_anforanden.
+    method: GET
+    url: https://data.riksdagen.se/anforande/HD09103-76/json
+    headers: *default_headers
+    timeout: 30
+
+  pubmed_digital_humanities:
+    method: GET
+    url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi
+    headers: *default_headers
+    params:
+      db: pubmed
+      term: digital humanities
+      retmode: json
+      retmax: 2
+    timeout: 30
+
+  openalex_digital_humanities:
+    # Anonymous low-volume access worked; use an OpenAlex key for pipeline-scale use.
+    method: GET
+    url: https://api.openalex.org/works
+    headers: *default_headers
+    params:
+      search: digital humanities
+      per-page: 2
+      select: id,title,publication_year,topics
+    timeout: 30
+
+  arxiv_digital_humanities:
+    # The arXiv API returns Atom XML, which the explorer previews as text.
+    method: GET
+    url: https://export.arxiv.org/api/query
+    headers: *default_headers
+    params:
+      search_query: all:digital humanities
+      start: 0
+      max_results: 2
+    timeout: 30
+
+  europeana_philosophy:
+    # Requires a free Europeana account and API key.
+    method: GET
+    url: https://api.europeana.eu/record/v2/search.json
+    headers: *default_headers
+    params:
+      query: philosophy
+      rows: 2
+      wskey: ${EUROPEANA_API_KEY}
+    timeout: 30

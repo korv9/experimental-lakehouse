@@ -41,13 +41,14 @@ unused abstractions.
 │   └── lakehouse_platform/       # Installable, domain-agnostic platform package
 │       ├── engine.py             # Public run_pipeline facade
 │       ├── core/                 # ACON model, validation and imports
-│       ├── ingestion/            # REST, auth and pagination
+│       ├── ingestion/            # REST, downloads, rate limits and pagination
 │       ├── io/                   # Readers and Delta writers
-│       ├── metadata/             # Control tables and watermarks
+│       ├── metadata/             # Unity Catalog layout, state and watermarks
 │       ├── observability/        # Progress events and logging
 │       ├── quality/              # Portable quality gate and DQX adapter
 │       ├── schemas/              # Base table-contract machinery
 │       ├── transforms/           # Reusable technical transformations
+│       ├── tools/                # API explorer and developer utilities
 │       └── post_actions/         # OPTIMIZE and VACUUM
 ├── products/
 │   ├── example_works/
@@ -56,14 +57,16 @@ unused abstractions.
 │   │   ├── experiments/          # Tested analytical experiments
 │   │   ├── local/                # Dependency-free reference execution
 │   │   └── serving/              # Product exports
-│   └── messy_records/
-│       ├── pipelines/
-│       └── tables/
+│   ├── messy_records/
+│   │   ├── pipelines/
+│   │   └── tables/
+│   └── philosophy_litterature/    # First Atlas of Human Thought product
 ├── notebooks/
 │   ├── setup/                    # One-time platform setup
 │   ├── ingestion/                # API ingestion entrypoint
 │   └── products/                 # Thin notebooks grouped by product
 ├── config/
+│   ├── api/                      # Reusable endpoint test definitions
 │   ├── environments/             # Environment values
 │   └── sources/                  # Source registry
 ├── datasets/                     # Small, versioned demo fixtures
@@ -83,6 +86,9 @@ lakehouse_platform = how a pipeline runs
 products           = what a pipeline means
 notebooks          = where a pipeline is started interactively
 ```
+
+The research-product backlog and candidate future products are maintained in
+[`IDEAS.md`](IDEAS.md). The first planned product is `philosophy_litterature`.
 
 ## ACON
 
@@ -277,6 +283,83 @@ Then:
 
 Only add a new platform adapter when multiple products need the capability.
 
+## Unity Catalog storage model
+
+Tabular data and operational state use three-part Unity Catalog names such as
+`dev_lakehouse.bronze.philosophy_litterature_work_raw`. Non-tabular source files and
+checkpoints use governed managed volumes:
+
+```text
+/Volumes/dev_lakehouse/landing/source_files/<product>/<source>/...
+/Volumes/dev_lakehouse/platform/checkpoints/<pipeline>/...
+```
+
+The setup notebook creates the layer schemas, `landing.source_files` volume,
+`platform.checkpoints` volume and Delta control tables. It does not use DBFS
+root. Downloaded files are written to a `.part` path, optionally resumed,
+verified with SHA-256 and published with a same-directory replace only after
+validation.
+
+The complete object mapping, checkpoint rules and least-privilege SQL are in
+[`docs/unity-catalog.md`](docs/unity-catalog.md).
+
+Ingestion checkpoints are committed after their Bronze page is committed.
+Bronze records use deterministic content IDs and `MERGE ... WHEN NOT MATCHED`,
+so replaying the last page after a failure does not create duplicates.
+
+## Explore API endpoints
+
+Use the API explorer to inspect a source before implementing its production
+reader. It runs without Spark and supports common HTTP methods, query
+parameters, headers, JSON or raw request bodies, response previews and saving
+the exact response body.
+
+Ad-hoc request:
+
+```powershell
+lakehouse-api https://openlibrary.org/search.json `
+  --param "q=data engineering" `
+  --param "limit=3" `
+  --header "Accept=application/json"
+```
+
+For endpoints you test repeatedly, copy
+[`config/api/endpoints.example.yaml`](config/api/endpoints.example.yaml), add a
+named endpoint and run:
+
+```powershell
+lakehouse-api --config config/api/endpoints.example.yaml `
+  --endpoint open_library_search `
+  --save datasets/api_samples/open_library_search.json
+```
+
+The repository also contains
+[`config/api/humanities.yaml`](config/api/humanities.yaml) with live-tested
+profiles for Gutenberg, Wikisource, Internet Archive, Open Library, Wikidata,
+Libris, Library of Congress, Sveriges riksdag, PubMed, OpenAlex and arXiv. The
+test results and source-selection guidance are documented in
+[`docs/api-source-evaluation.md`](docs/api-source-evaluation.md).
+
+Configuration values can reference environment variables, for example
+`Authorization: Bearer ${EXAMPLE_API_TOKEN}`. Sensitive request headers are
+masked in terminal output. Keep real tokens in environment variables and keep
+local secret-bearing configuration out of Git.
+
+The same module is usable from a notebook or Python:
+
+```python
+from lakehouse_platform.tools.api_explorer import ApiRequest, execute_request
+
+response = execute_request(
+    ApiRequest(
+        name="works",
+        url="https://openlibrary.org/search.json",
+        params={"q": "data engineering", "limit": 3},
+    )
+)
+print(response.status_code, response.body)
+```
+
 ## Development
 
 Install the project:
@@ -304,6 +387,11 @@ Implemented:
 
 - typed and validated ACON loading,
 - Unity Catalog, JSON and text readers,
+- governed Unity Catalog landing and checkpoint volumes,
+- resumable atomic file downloads with SHA-256 validation,
+- rate limiting, transient retry handling and cursor pagination,
+- durable cursor/watermark checkpoints and idempotent Bronze replay,
+- deterministic HTML extraction and conservative OCR cleanup,
 - callable product transformations,
 - portable quality gates,
 - Delta table output,
@@ -312,11 +400,14 @@ Implemented:
 - a complete messy-records example product,
 - Example Works Bronze/Silver and Kimball Gold pipelines,
 - tested fact/dimension integrity and experiment aggregation,
+- a documented Philosophy Books MVP and product backlog,
 - unit and Spark integration tests.
 
-Next platform increments should be driven by demonstrated use cases:
+Next platform increments should be driven by the Philosophy Books MVP:
 
-- persisted run metadata, row counts and watermarks,
+- source-specific Gutenberg boilerplate removal and text chunking,
+- download-manifest integration in the Philosophy ingestion job,
+- embedding/model version registry and experiment tracking,
 - richer DQX adapter and quality metrics,
 - Databricks Asset Bundles and CI/CD,
 - lineage and product ownership metadata,
