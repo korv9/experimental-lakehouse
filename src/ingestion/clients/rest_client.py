@@ -13,11 +13,13 @@ import requests
 
 
 class RestClient:
-    def __init__(self, base_url: str, *, timeout: int = 30, max_retries: int = 3, auth=None):
+    def __init__(self, base_url: str, *, timeout: int = 30, max_retries: int = 3,
+                 auth=None, default_headers: dict[str, str] | None = None):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.auth = auth  # an auth strategy with .apply(headers) -> headers
+        self.default_headers = default_headers or {}  # e.g. {"Accept": "application/ld+json"}
 
     def get(self, endpoint: str, params: dict[str, Any] | None = None) -> dict:
         """GET one page and return parsed JSON.
@@ -26,7 +28,9 @@ class RestClient:
         raises so the pipeline run is marked *failed* rather than silently empty.
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        headers = self.auth.apply({}) if self.auth else {}
+        headers = dict(self.default_headers)
+        if self.auth:
+            headers = self.auth.apply(headers)
 
         for attempt in range(1, self.max_retries + 1):
             resp = requests.get(url, params=params, headers=headers, timeout=self.timeout)
