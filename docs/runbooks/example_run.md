@@ -1,36 +1,42 @@
-# Runbook: run the example pipeline
+# Runbook: Example Works
 
-Prerequisites: a Databricks workspace with Unity Catalog, this repo attached, and
-`pip install -r requirements.txt` on the cluster (for `requests`, `pyyaml`, DQX).
+## Local reference run
 
-## One-time setup
+```powershell
+$env:PYTHONPATH='src;.'
+python -m products.example_works.local.reference_pipeline
+python -m pytest -q
+```
 
-Run `notebooks/setup/00_create_platform.py` — creates the catalog, the
-`platform/bronze/silver/gold/sandbox` schemas, and the control tables.
+This uses the checked-in response and validates Bronze, Silver, Kimball Gold
+foreign keys and the experiment aggregation without requiring Spark.
 
-## Each run
+## Databricks run
 
-1. **Ingest** — `notebooks/ingestion/01_run_ingestion.py`
-   Pulls `example.com/data` into `bronze.example_data_records`, records a row in
-   `platform.pipeline_runs`, advances the watermark.
-2. **Transform** — either:
-   - imperative: `notebooks/transformations/02_run_transforms.py`, or
-   - declarative: deploy `pipelines/transformations/example_medallion_dlt.py` as
-     a DLT pipeline.
-3. **Export** — the transform notebook writes
-   `exports/portfolio/featured_works.json`.
+Install the built wheel, attach the repo and run:
 
-Or wire all three as a Job with `pipelines/orchestration/example_workflow.yaml`.
+1. `notebooks/setup/00_create_platform.py`
+2. `notebooks/ingestion/01_run_ingestion.py`
+3. `notebooks/products/example_works/bronze_to_silver.py`
+4. `notebooks/products/example_works/silver_to_gold.py`
+5. `notebooks/products/example_works/experiments.py`
 
-## Checks
+Expected targets:
 
-- `SELECT * FROM dev_lakehouse.platform.pipeline_runs ORDER BY started_at DESC`
-- `SELECT * FROM dev_lakehouse.platform.data_quality_results ORDER BY checked_at DESC`
-- Re-run any step: bronze appends, silver/gold MERGE/overwrite → no duplicates.
+- `silver.works`
+- `quarantine.example_works`
+- `gold.fact_work`
+- `gold.dim_work`
+- `gold.dim_author`
+- `gold.dim_category`
+- `gold.dim_date`
 
-## Troubleshooting
+Silver uses Delta MERGE keyed by `work_id`; Gold is a deterministic rebuild.
 
-- Empty silver? Check the watermark in `platform.ingestion_state` — a stale
-  watermark skips already-seen rows. Reset it to reprocess.
-- High `quarantine_rate` in DQX results → inspect the quarantined rows before
-  loosening a rule.
+## Operational checks
+
+```sql
+SELECT * FROM dev_lakehouse.platform.pipeline_runs ORDER BY started_at DESC;
+SELECT * FROM dev_lakehouse.quarantine.example_works;
+SELECT COUNT(*) FROM dev_lakehouse.gold.fact_work;
+```

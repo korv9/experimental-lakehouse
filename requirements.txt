@@ -1,7 +1,0 @@
-pyspark>=3.5
-delta-spark>=3.1
-pyyaml>=6.0
-requests>=2.31
-# Data quality: Databricks Labs DQX (declarative rules + quarantine)
-databricks-labs-dqx>=0.1
-databricks-sdk>=0.20

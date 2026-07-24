@@ -6,14 +6,15 @@ skeleton every source will reuse.
 """
 from pyspark.sql import SparkSession
 
-from src.metadata.control_tables import create_platform_tables
+from lakehouse_platform.metadata.control_tables import create_platform_tables
 
 CATALOG = "dev_lakehouse"
 spark = SparkSession.builder.getOrCreate()
 
 spark.sql(f"CREATE CATALOG IF NOT EXISTS {CATALOG}")
-for schema in ["platform", "bronze", "silver", "gold", "sandbox"]:
+for schema in ["platform", "bronze", "silver", "gold", "quarantine", "sandbox"]:
+    print(f"[SETUP] Ensuring schema {CATALOG}.{schema}")
     spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.{schema}")
 
 create_platform_tables(spark, CATALOG)
-print("platform ready")
+print(f"[SETUP] Platform ready: {CATALOG}")

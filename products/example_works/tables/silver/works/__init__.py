@@ -1,0 +1,1 @@
+"""Normalized Works table."""

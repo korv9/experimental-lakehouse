@@ -3,7 +3,7 @@
 One assertion per messy case — this doubles as living documentation of exactly
 what each helper promises.
 """
-from src.transformations import cleaning as c
+from lakehouse_platform.transforms import cleaning as c
 
 
 def test_clean_text_trims_and_unescapes():

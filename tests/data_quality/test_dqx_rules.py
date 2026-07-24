@@ -3,7 +3,7 @@
 Cheap guard that runs without Spark — catches typos in the rule definitions
 before they hit a pipeline.
 """
-from src.quality.dqx_checks import WORKS_CHECKS
+from lakehouse_platform.quality.dqx import WORKS_CHECKS
 
 
 def test_rules_have_required_fields():

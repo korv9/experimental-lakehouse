@@ -24,15 +24,65 @@ dev = [
     "ruff>=0.4",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
-namespaces = true
+[tool.setuptools]
+packages = [
+    "lakehouse_platform",
+    "lakehouse_platform.core",
+    "lakehouse_platform.io",
+    "lakehouse_platform.ingestion",
+    "lakehouse_platform.ingestion.authentication",
+    "lakehouse_platform.ingestion.clients",
+    "lakehouse_platform.ingestion.pagination",
+    "lakehouse_platform.metadata",
+    "lakehouse_platform.observability",
+    "lakehouse_platform.post_actions",
+    "lakehouse_platform.quality",
+    "lakehouse_platform.schemas",
+    "lakehouse_platform.transforms",
+    "products",
+    "products.messy_records",
+    "products.messy_records.pipelines",
+    "products.messy_records.tables",
+    "products.messy_records.tables.bronze",
+    "products.messy_records.tables.bronze.records_raw",
+    "products.messy_records.tables.silver",
+    "products.messy_records.tables.silver.records",
+    "products.example_works",
+    "products.example_works.pipelines",
+    "products.example_works.experiments",
+    "products.example_works.local",
+    "products.example_works.serving",
+    "products.example_works.tables",
+    "products.example_works.tables.bronze",
+    "products.example_works.tables.bronze.works_raw",
+    "products.example_works.tables.silver",
+    "products.example_works.tables.silver.works",
+    "products.example_works.tables.gold",
+    "products.example_works.tables.gold.dim_work",
+    "products.example_works.tables.gold.dim_author",
+    "products.example_works.tables.gold.dim_category",
+    "products.example_works.tables.gold.dim_date",
+    "products.example_works.tables.gold.fact_work",
+]
+
+[tool.setuptools.package-dir]
+lakehouse_platform = "src/lakehouse_platform"
+products = "products"
+
+[tool.setuptools.package-data]
+"products.messy_records.pipelines" = ["*.yaml"]
+"products.messy_records.tables.silver.records" = ["*.yaml"]
+"products.example_works.pipelines" = ["*.yaml"]
+"products.example_works.tables.silver.works" = ["*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "src"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[tool.ruff.lint]
+# Contract metadata intentionally uses class-level dictionaries consumed by BaseSchema.
+ignore = ["RUF012"]

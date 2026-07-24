@@ -4,11 +4,12 @@
 
 environment: dev
 catalog: dev_lakehouse
-landing_volume: /Volumes/dev/landing   # where raw files land for Auto Loader / DLT
+landing_volume: /Volumes/dev/landing   # raw file landing area
 
 schemas:
   platform: platform   # control tables (operational metadata)
   bronze: bronze       # raw, append-only
   silver: silver       # cleaned, conformed entities
   gold: gold           # data products
+  quarantine: quarantine # rejected error-level records
   sandbox: sandbox     # isolated experiments

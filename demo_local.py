@@ -5,10 +5,10 @@ can SEE the cleaning happen:
 
     python demo_local.py
 
-It reuses ``src/transformations/cleaning.clean_record`` — the exact logic the
+It reuses ``lakehouse_platform.transforms.cleaning.clean_record`` — the exact logic the
 PySpark transform applies as a UDF — so this demo and the cluster agree. The
 Spark version (bronze->silver->gold on Delta) lives in
-``src/transformations/bronze_to_silver/messy_records.py`` and is exercised by
+``products/messy_records/transformations.py`` and is exercised by
 ``tests/integration/test_messy_pipeline.py``.
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from src.transformations.cleaning import clean_record
+from lakehouse_platform.transforms.cleaning import clean_record
 
 RAW_PATH = Path(__file__).parent / "datasets" / "messy_demo" / "raw_records.json"
 
@@ -85,7 +85,7 @@ def main() -> None:
     for cat, n in counts.most_common():
         avg = ratings.get(cat)
         avg_s = f"{sum(avg) / len(avg):.2f}" if avg else "-"
-        print(f"  {str(cat):<14}{n:>6}   {avg_s}")
+        print(f"  {cat!s:<14}{n:>6}   {avg_s}")
 
     _rule("=")
     print("Done. Same clean_record() runs on Spark as a UDF (see messy_records.py).")

@@ -1,0 +1,1 @@
+"""Kimball Gold tables."""

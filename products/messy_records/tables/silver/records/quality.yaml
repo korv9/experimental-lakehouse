@@ -1,0 +1,31 @@
+- name: record_id_not_null
+  criticality: error
+  check:
+    function: is_not_null
+    arguments:
+      column: record_id
+
+- name: title_not_null
+  criticality: error
+  check:
+    function: is_not_null
+    arguments:
+      column: title
+
+- name: year_in_range
+  criticality: warn
+  check:
+    function: is_in_range
+    arguments:
+      column: year
+      min_limit: 0
+      max_limit: 2100
+
+- name: rating_in_range
+  criticality: warn
+  check:
+    function: is_in_range
+    arguments:
+      column: rating
+      min_limit: 0
+      max_limit: 5

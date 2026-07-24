@@ -6,16 +6,16 @@ the actual Spark transform, and asserts the cleaning + dedup worked end to end.
 No Delta/Unity Catalog needed — it operates on DataFrames directly.
 """
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
 pytest.importorskip("pyspark")
 
-from pyspark.sql import Row, SparkSession  # noqa: E402
+from pyspark.sql import Row, SparkSession
 
-from src.transformations.bronze_to_silver.messy_records import transform  # noqa: E402
+from products.messy_records.tables.silver.records.transform import transform
 
 RAW = Path(__file__).resolve().parents[2] / "datasets" / "messy_demo" / "raw_records.json"
 
@@ -29,8 +29,13 @@ def spark():
 def bronze(spark):
     records = json.loads(RAW.read_text())
     # simulate bronze: one row per raw record, payload as a JSON string
-    rows = [Row(raw_payload=json.dumps(r), ingested_at=datetime(2024, 1, i % 27 + 1))
-            for i, r in enumerate(records)]
+    rows = [
+        Row(
+            raw_payload=json.dumps(record),
+            ingested_at=datetime(2024, 1, index % 27 + 1, tzinfo=timezone.utc),
+        )
+        for index, record in enumerate(records)
+    ]
     return spark.createDataFrame(rows)
 
 

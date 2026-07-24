@@ -40,7 +40,7 @@ pytest tests/unit/test_cleaning.py            # cleaning logic
 pytest tests/integration/test_messy_pipeline.py   # full Spark run (needs pyspark)
 ```
 
-On Databricks, the same flow runs declaratively as a DLT pipeline:
-`pipelines/transformations/messy_medallion_dlt.py` — Auto Loader → cleaning UDF
-+ `@dlt.expect_*` quality gates → `apply_changes` dedup (latest per `record_id`)
-→ gold aggregate.
+On Databricks, `notebooks/products/messy_records/bronze_to_silver.py` starts the
+ACON in `products/messy_records/pipelines/bronze_to_silver.yaml`. The engine reads Bronze, calls the
+cleaning transformation, applies quality rules, persists rejected rows and
+MERGEs valid records into Silver.

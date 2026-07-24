@@ -1,0 +1,64 @@
+pipeline:
+  id: example_works_silver_to_kimball_gold
+  owner: analytics-engineering
+  version: 1
+  description: Publish a star schema with one fact row per current work.
+
+inputs:
+  - id: silver_works
+    reader: unity_catalog_table
+    options:
+      table: ${catalog}.silver.works
+
+transformations:
+  - id: dim_work
+    input_id: silver_works
+    callable: products.example_works.tables.gold.dim_work.transform:build
+  - id: dim_author
+    input_id: silver_works
+    callable: products.example_works.tables.gold.dim_author.transform:build
+  - id: dim_category
+    input_id: silver_works
+    callable: products.example_works.tables.gold.dim_category.transform:build
+  - id: dim_date
+    input_id: silver_works
+    callable: products.example_works.tables.gold.dim_date.transform:build
+  - id: fact_work
+    input_id: silver_works
+    callable: products.example_works.tables.gold.fact_work.transform:build
+
+quality: []
+
+outputs:
+  - id: publish_dim_work
+    input_id: dim_work
+    writer: delta_table
+    options:
+      table: ${catalog}.gold.dim_work
+      mode: overwrite
+  - id: publish_dim_author
+    input_id: dim_author
+    writer: delta_table
+    options:
+      table: ${catalog}.gold.dim_author
+      mode: overwrite
+  - id: publish_dim_category
+    input_id: dim_category
+    writer: delta_table
+    options:
+      table: ${catalog}.gold.dim_category
+      mode: overwrite
+  - id: publish_dim_date
+    input_id: dim_date
+    writer: delta_table
+    options:
+      table: ${catalog}.gold.dim_date
+      mode: overwrite
+  - id: publish_fact_work
+    input_id: fact_work
+    writer: delta_table
+    options:
+      table: ${catalog}.gold.fact_work
+      mode: overwrite
+
+post_actions: []

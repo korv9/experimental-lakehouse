@@ -1,0 +1,1 @@
+"""Work fact table."""

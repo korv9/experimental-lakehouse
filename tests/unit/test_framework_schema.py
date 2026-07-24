@@ -4,8 +4,12 @@ TableDefinitions are importable and introspectable without a Spark session,
 which is the whole point of keeping the type markers lazy. These assert the
 contract the notebooks and process_job rely on.
 """
-from lakehouse_framework.schemas.bronze.messy.records import TableDefinition as Bronze
-from lakehouse_framework.schemas.silver.messy.records import TableDefinition as Silver
+from products.messy_records.tables.bronze.records_raw.contract import (
+    TableDefinition as Bronze,
+)
+from products.messy_records.tables.silver.records.contract import (
+    TableDefinition as Silver,
+)
 
 
 def test_object_locations():

@@ -10,7 +10,7 @@ endpoint: /data
 response_format: json
 
 authentication:
-  type: none            # example.com/data is public; see src/ingestion/authentication/
+  type: none            # see lakehouse_platform/ingestion/authentication/
 
 pagination:
   type: page_number     # walk ?page=1,2,3... until total_pages is reached
