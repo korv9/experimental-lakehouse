@@ -1,0 +1,39 @@
+# Libris XL /find as the first real source (KB — Kungliga biblioteket).
+# Bibliographic data as JSON-LD (KBV/BIBFRAME). Read access is open (no key).
+# Nationalbibliografin + Swedish authorities are CC0. Verify exact limits against
+# https://libris.kb.se/api/docs/ before scaling up.
+
+source_name: libris_find
+source_type: rest
+base_url: https://libris.kb.se
+endpoint: /find
+response_format: json-ld
+
+authentication:
+  type: none
+
+pagination:
+  type: offset            # Libris uses _offset/_limit (not page numbers)
+  offset_parameter: _offset
+  limit_parameter: _limit
+  page_size: 200
+
+request:
+  headers:
+    Accept: application/ld+json
+  params:
+    q: "*"                # start broad; narrow with a subject/year for a small first pull
+    "@type": Instance     # editions (the bibliographic records)
+
+response:
+  items_key: items        # Libris returns the record list under "items"
+  total_key: totalItems   # ...and the count under "totalItems"
+  id_key: "@id"           # each item's id is its "@id"
+
+incremental:
+  enabled: true
+  strategy: modified      # meta.modified drives future incremental pulls
+  watermark_column: ingested_at
+
+destination:
+  bronze_table: bronze.libris_find_records

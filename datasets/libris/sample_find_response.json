@@ -1,0 +1,86 @@
+{
+  "_note": "REPRESENTATIVE sample of a Libris XL /find JSON-LD response (KBV/BIBFRAME) - a faithful reconstruction of the documented format, NOT a captured live response (the sandbox egress policy blocks libris.kb.se). Used for reading and for tests. Replace with a real capture once libris.kb.se is reachable.",
+  "@context": "https://libris.kb.se/context.jsonld",
+  "@id": "/find?q=Pippi&_limit=2",
+  "@type": "PartialCollectionView",
+  "totalItems": 137,
+  "itemOffset": 0,
+  "itemsPerPage": 2,
+  "items": [
+    {
+      "@id": "https://libris.kb.se/s93ns5m41x9c2gd#it",
+      "@type": "Instance",
+      "meta": {
+        "@id": "https://libris.kb.se/s93ns5m41x9c2gd",
+        "modified": "2023-04-12T09:14:22.531+02:00",
+        "encodingLevel": "marc:FullLevel"
+      },
+      "issuanceType": "Monograph",
+      "hasTitle": [
+        { "@type": "Title", "mainTitle": "Pippi Långstrump" }
+      ],
+      "publication": [
+        {
+          "@type": "Publication",
+          "year": "1945",
+          "country": { "@id": "https://id.kb.se/country/sw" },
+          "agent": { "@type": "Agent", "label": "Rabén & Sjögren" }
+        }
+      ],
+      "identifiedBy": [
+        { "@type": "ISBN", "value": "9789129697285" }
+      ],
+      "extent": [ { "@type": "Extent", "label": "173 s." } ],
+      "instanceOf": {
+        "@type": "Text",
+        "contribution": [
+          {
+            "@type": "PrimaryContribution",
+            "agent": { "@type": "Person", "givenName": "Astrid", "familyName": "Lindgren", "lifeSpan": "1907-2002" },
+            "role": [ { "@id": "https://id.kb.se/relator/author" } ]
+          },
+          {
+            "@type": "Contribution",
+            "agent": { "@type": "Person", "givenName": "Ingrid", "familyName": "Nyman" },
+            "role": [ { "@id": "https://id.kb.se/relator/illustrator" } ]
+          }
+        ],
+        "subject": [
+          { "@type": "Topic", "prefLabel": "Barnböcker" },
+          { "@type": "Topic", "prefLabel": "Bilderböcker" }
+        ],
+        "language": [ { "@id": "https://id.kb.se/language/swe" } ]
+      }
+    },
+    {
+      "@id": "https://libris.kb.se/abc123def456#it",
+      "@type": "Instance",
+      "meta": {
+        "@id": "https://libris.kb.se/abc123def456",
+        "modified": "2020-01-02T00:00:00.000+01:00"
+      },
+      "issuanceType": "Monograph",
+      "hasTitle": [
+        { "@type": "Title", "mainTitle": "Nils Holgerssons underbara resa genom Sverige" }
+      ],
+      "publication": [
+        { "@type": "Publication", "year": "1906", "agent": { "@type": "Agent", "label": "Bonnier" } }
+      ],
+      "identifiedBy": [
+        { "@type": "ISBN", "value": "9789100123456" }
+      ],
+      "instanceOf": {
+        "@type": "Text",
+        "contribution": [
+          {
+            "@type": "PrimaryContribution",
+            "agent": { "@type": "Person", "givenName": "Selma", "familyName": "Lagerlöf" },
+            "role": [ { "@id": "https://id.kb.se/relator/author" } ]
+          }
+        ],
+        "subject": [ { "@type": "Topic", "prefLabel": "Barnböcker" } ],
+        "language": [ { "@id": "https://id.kb.se/language/swe" } ]
+      }
+    }
+  ]
+}
