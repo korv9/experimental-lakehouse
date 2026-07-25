@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
 
-from pyspark.sql import Row, SparkSession
+from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
 
@@ -26,8 +25,8 @@ class IngestionCheckpoint:
     run_id: str | None
 
 
-def _now() -> datetime:
-    return datetime.now(timezone.utc)
+def _sql_string(value: str | None) -> str:
+    return "NULL" if value is None else "'" + value.replace("'", "''") + "'"
 
 
 def create_platform_tables(spark: SparkSession, catalog: str) -> None:
@@ -73,12 +72,15 @@ def create_platform_tables(spark: SparkSession, catalog: str) -> None:
 def start_run(spark: SparkSession, catalog: str, *, pipeline_name: str, source_name: str) -> str:
     """Insert a 'running' row and return its run_id."""
     run_id = str(uuid.uuid4())
-    spark.createDataFrame([Row(
-        run_id=run_id, pipeline_name=pipeline_name, source_name=source_name,
-        started_at=_now(), completed_at=None, status="running",
-        records_read=None, records_written=None, records_rejected=None,
-        error_message=None,
-    )]).write.mode("append").saveAsTable(f"{catalog}.platform.pipeline_runs")
+    spark.sql(f"""
+        INSERT INTO {catalog}.platform.pipeline_runs (
+            run_id, pipeline_name, source_name, started_at, completed_at, status,
+            records_read, records_written, records_rejected, error_message
+        ) VALUES (
+            {_sql_string(run_id)}, {_sql_string(pipeline_name)}, {_sql_string(source_name)},
+            current_timestamp(), NULL, 'running', NULL, NULL, NULL, NULL
+        )
+    """)
     return run_id
 
 
@@ -153,10 +155,6 @@ def get_checkpoint(
         status=row["status"],
         run_id=row["run_id"],
     )
-
-
-def _sql_string(value: str | None) -> str:
-    return "NULL" if value is None else "'" + value.replace("'", "''") + "'"
 
 
 def set_checkpoint(

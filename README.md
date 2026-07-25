@@ -72,6 +72,7 @@ unused abstractions.
 ├── datasets/                     # Small, versioned demo fixtures
 ├── docs/                         # ADRs, architecture, models and runbooks
 ├── tests/                        # Unit, integration and quality tests
+├── demo_databricks.py            # Guided first run on Databricks
 └── pyproject.toml                # Package, dependencies and tool configuration
 ```
 
@@ -282,6 +283,44 @@ Then:
 6. Add a thin job entrypoint or deploy the wheel directly.
 
 Only add a new platform adapter when multiple products need the capability.
+
+## First run in Databricks
+
+Run [`demo_databricks.py`](demo_databricks.py) first. Open the repository as a
+Databricks Git folder, attach the file to Unity Catalog-enabled compute and run
+the whole file. It is both a Databricks notebook source and a Python entrypoint,
+and it adds the repository's `src` directory to the import path for this first
+run.
+
+The demo prints every stage while it:
+
+1. shows the Spark runtime, current identity and selected catalog;
+2. creates or validates the catalog, layer schemas and managed volumes;
+3. creates the five Delta control tables;
+4. inventories every expected Unity Catalog object;
+5. verifies a temporary Volume file with SHA-256 and removes it;
+6. records and completes a real row in `platform.pipeline_runs`; and
+7. optionally tests outbound API access against Gutendex.
+
+Use the notebook widgets at the top of the run:
+
+| Widget | Default | Purpose |
+| --- | --- | --- |
+| `catalog` | `dev_lakehouse` | Unity Catalog catalog used by the demo |
+| `create_catalog` | `true` | Set to `false` when an administrator created it |
+| `run_volume_probe` | `true` | Test governed file write/read/delete access |
+| `run_api_smoke` | `true` | Test internet egress without blocking UC setup |
+
+The setup identity needs permission to create the requested objects. In a
+managed environment, ask an administrator to create and grant access to the
+catalog, then run with `create_catalog=false`.
+
+The file is safe to rerun: DDL uses `IF NOT EXISTS`, the temporary file probe is
+removed, and each audit probe receives a new run ID. It deliberately does not
+start the unfinished Philosophy ingestion. After the summary is green, review
+[`IDEAS.md`](IDEAS.md) and
+[`products/philosophy_litterature/product.yaml`](products/philosophy_litterature/product.yaml)
+before enabling that product.
 
 ## Unity Catalog storage model
 
