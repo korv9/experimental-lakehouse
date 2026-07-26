@@ -8,9 +8,10 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
+if TYPE_CHECKING:
+    from pyspark.sql import SparkSession
 
 
 @dataclass(frozen=True)
@@ -172,6 +173,8 @@ def get_checkpoint(
     partition_key: str = "default",
 ) -> IngestionCheckpoint | None:
     """Return durable state for resuming one source partition."""
+    from pyspark.sql import functions as F
+
     rows = (
         spark.table(f"{catalog}.platform.ingestion_checkpoints")
         .where(

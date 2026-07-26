@@ -60,11 +60,11 @@ unused abstractions.
 │   ├── messy_records/
 │   │   ├── pipelines/
 │   │   └── tables/
-│   └── philosophy_litterature/    # First Atlas of Human Thought product
+│   └── philosophy_litterature/    # Contracts + runnable product notebooks
 ├── notebooks/
 │   ├── setup/                    # One-time platform setup
 │   ├── ingestion/                # API ingestion entrypoint
-│   └── products/                 # Thin notebooks grouped by product
+│   └── products/                 # Existing ACON/demo entrypoints
 ├── config/
 │   ├── api/                      # Reusable endpoint test definitions
 │   ├── environments/             # Environment values
@@ -84,8 +84,8 @@ The architectural rule is:
 
 ```text
 lakehouse_platform = how a pipeline runs
-products           = what a pipeline means
-notebooks          = where a pipeline is started interactively
+products           = contracts plus complete runnable product notebooks
+notebooks          = shared setup and existing ACON/demo entrypoints
 ```
 
 The research-product backlog and candidate future products are maintained in
@@ -175,9 +175,13 @@ This boundary makes the same transformation usable from:
 Source names, mappings and domain rules belong to the product. Generic hashing,
 I/O, orchestration and quality execution belong to the platform.
 
-## Thin notebooks
+## Product notebooks and ACON entrypoints
 
-Production logic must not depend on notebook state. A notebook is an entrypoint:
+Self-contained product notebooks keep `uc_read`, PySpark transformations,
+validation and `job_config` together under the product. They remain ordinary
+importable Python modules and must not depend on hidden interactive state.
+
+Fully declarative products can instead use a thin ACON entrypoint:
 
 ```python
 from lakehouse_platform.engine import run_pipeline
@@ -191,9 +195,10 @@ result = run_pipeline(
 print(result)
 ```
 
-See [`notebooks/products/messy_records/bronze_to_silver.py`](notebooks/products/messy_records/bronze_to_silver.py).
-During exploration, engineers can still import and call the product transform
-directly and use `display()` on intermediate DataFrames.
+See [`products/philosophy_litterature/notebooks/`](products/philosophy_litterature/notebooks/)
+for the self-contained pattern and
+[`notebooks/products/messy_records/bronze_to_silver.py`](notebooks/products/messy_records/bronze_to_silver.py)
+for the ACON entrypoint pattern.
 
 ## Execution engine
 
@@ -255,32 +260,29 @@ Create:
 ```text
 products/my_product/
 ├── __init__.py
-├── pipelines/
-│   └── bronze_to_silver.yaml
+├── notebooks/
+│   └── build_entity.py       # uc_read + PySpark + checks + job_config
 └── tables/
     ├── silver/
     │   └── entity_name/
     │       ├── contract.py
-    │       ├── transform.py
     │       ├── quality.yaml
     │       └── tests/
     └── gold/
         ├── dim_entity/
-        │   ├── contract.py
-        │   └── transform.py
+        │   └── contract.py
         └── fact_event/
-            ├── contract.py
-            └── transform.py
+            └── contract.py
 ```
 
 Then:
 
-1. Declare readers and dependencies in the ACON.
-2. Implement pure `DataFrame -> DataFrame` transformations.
-3. Declare error- and warning-level quality rules.
-4. Configure an idempotent target strategy.
+1. Read Unity Catalog inputs with `uc_read` near the start of the product notebook.
+2. Implement the visible PySpark transformation in that notebook.
+3. Add contract and product checks to its `job_config`.
+4. Configure merge, overwrite or append in `job_config.target`.
 5. Add unit, contract and integration tests.
-6. Add a thin job entrypoint or deploy the wheel directly.
+6. Add the notebook as a Databricks Workflow task.
 
 Only add a new platform adapter when multiple products need the capability.
 
@@ -322,14 +324,14 @@ start any product ingestion.
 After the summary is green, configure one Databricks Workflow with three
 dependent notebook tasks:
 
-1. [`01_ingest_gutenberg_catalog.py`](notebooks/products/philosophy_litterature/01_ingest_gutenberg_catalog.py)
+1. [`ingest_gutenberg_catalog.py`](products/philosophy_litterature/notebooks/ingest_gutenberg_catalog.py)
    downloads the official `pg_catalog.csv.gz` feed atomically, validates gzip
    and CSV structure, records SHA-256 lineage and merges source-faithful rows
    into `bronze.gutenberg_catalog_raw`.
-2. [`02_normalize_gutenberg_catalog.py`](notebooks/products/philosophy_litterature/02_normalize_gutenberg_catalog.py)
+2. [`normalize_gutenberg_catalog.py`](products/philosophy_litterature/notebooks/normalize_gutenberg_catalog.py)
    produces one current normalized row per Gutenberg ID in
    `silver.gutenberg_work`.
-3. [`03_select_philosophy_corpus.py`](notebooks/products/philosophy_litterature/03_select_philosophy_corpus.py)
+3. [`select_philosophy_corpus.py`](products/philosophy_litterature/notebooks/select_philosophy_corpus.py)
    joins the reviewed corpus intent to official metadata and writes
    `silver.philosophy_litterature_work`.
 

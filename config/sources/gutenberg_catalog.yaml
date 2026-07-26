@@ -26,8 +26,3 @@ file:
     - Subjects
     - LoCC
     - Bookshelves
-
-destination:
-  bronze_table: bronze.gutenberg_catalog_raw
-  silver_catalog_table: silver.gutenberg_work
-  silver_product_table: silver.philosophy_litterature_work

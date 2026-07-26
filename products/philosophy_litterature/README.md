@@ -39,9 +39,9 @@ metadata; 54 approved corpus entries currently map to 53 unique Gutenberg IDs.
 Run [`demo_databricks.py`](../../demo_databricks.py) once to create Unity
 Catalog schemas, Volumes and control tables. Then create a Workflow containing:
 
-1. [`01_ingest_gutenberg_catalog.py`](../../notebooks/products/philosophy_litterature/01_ingest_gutenberg_catalog.py)
-2. [`02_normalize_gutenberg_catalog.py`](../../notebooks/products/philosophy_litterature/02_normalize_gutenberg_catalog.py), dependent on task 1
-3. [`03_select_philosophy_corpus.py`](../../notebooks/products/philosophy_litterature/03_select_philosophy_corpus.py), dependent on task 2
+1. [`ingest_gutenberg_catalog.py`](notebooks/ingest_gutenberg_catalog.py)
+2. [`normalize_gutenberg_catalog.py`](notebooks/normalize_gutenberg_catalog.py), dependent on task 1
+3. [`select_philosophy_corpus.py`](notebooks/select_philosophy_corpus.py), dependent on task 2
 
 Set `catalog=dev_lakehouse` on all three tasks. Task 1 optionally accepts
 `snapshot_date=YYYY-MM-DD`; blank means the current UTC date.
@@ -66,10 +66,42 @@ This path exists only to evaluate candidates and formats. The generic
 `lakehouse-api` CLI remains the single ad-hoc endpoint explorer. No Gutendex
 reader remains in the production ingestion engine.
 
-Product logic follows the table-first convention:
+The product is self-contained:
 
 ```text
-tables/<layer>/<physical_table>/{contract.py, transform.py, quality.yaml}
+products/philosophy_litterature/
+├── notebooks/               # uc_read + PySpark + validation + job_config
+├── tables/<layer>/<table>/  # table contract only
+├── corpus.yaml
+└── product.yaml
+```
+
+Each notebook owns one complete runnable table job. Shared platform code owns
+Unity Catalog reads and writes, downloading, checksums, manifests, control-table
+logging and Delta operations. There is no second product-specific `transform.py`
+to keep synchronized with the notebook.
+
+Every transformation notebook ends with the same readable configuration:
+
+```python
+job_config = {
+    "pipeline_name": "gutenberg_catalog_bronze_to_silver",
+    "source_name": "project_gutenberg_catalog",
+    "target": {
+        "path": TableDefinition.object_location(),
+        "format": "delta",
+        "mode": "merge",  # merge, overwrite or append
+        "keys": ["gutenberg_id"],
+        "when_matched": "update",  # update or ignore
+    },
+    "transformation": build_table,
+    "validation": {
+        "contract": TableDefinition,
+        "checks": [validate_gutenberg_work],
+    },
+}
+
+process_job(spark, job_config, catalog="dev_lakehouse")
 ```
 
 The remaining text, NLP and Gold backlog is maintained in

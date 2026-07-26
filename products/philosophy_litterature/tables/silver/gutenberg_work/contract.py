@@ -29,6 +29,3 @@ class TableDefinition(BaseSchema):
         object_description = "Latest normalized official Gutenberg catalog row per Text#."
         column_constraints = {"gutenberg_id": {"PK": True}}
         custom_table_properties = {"delta.enableChangeDataFeed": "true"}
-
-
-TABLE = TableDefinition.Meta.object_location

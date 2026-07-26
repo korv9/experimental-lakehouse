@@ -7,14 +7,12 @@ pytest.importorskip("pyspark")
 
 from pyspark.sql import Row, SparkSession
 
-from products.philosophy_litterature.tables.silver.gutenberg_work.transform import (
-    transform as normalize_catalog,
+from products.philosophy_litterature.notebooks.normalize_gutenberg_catalog import (
+    build_gutenberg_work,
 )
-from products.philosophy_litterature.tables.silver.philosophy_litterature_work.transform import (
+from products.philosophy_litterature.notebooks.select_philosophy_corpus import (
     SELECTION_SCHEMA,
-)
-from products.philosophy_litterature.tables.silver.philosophy_litterature_work.transform import (
-    transform as select_corpus,
+    build_philosophy_work,
 )
 
 
@@ -41,7 +39,7 @@ def test_bronze_payload_normalizes_and_joins_to_corpus_intent(spark):
             )
         ]
     )
-    catalog = normalize_catalog(bronze)
+    catalog = build_gutenberg_work(bronze)
     selection = spark.createDataFrame(
         [
             {
@@ -58,7 +56,7 @@ def test_bronze_payload_normalizes_and_joins_to_corpus_intent(spark):
         schema=SELECTION_SCHEMA,
     )
 
-    row = select_corpus(catalog, selection).collect()[0]
+    row = build_philosophy_work(catalog, selection).collect()[0]
 
     assert row["corpus_work_id"] == "plato_apology"
     assert row["gutenberg_id"] == "1656"

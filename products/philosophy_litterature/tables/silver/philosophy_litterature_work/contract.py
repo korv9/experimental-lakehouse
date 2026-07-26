@@ -36,6 +36,3 @@ class TableDefinition(BaseSchema):
         )
         column_constraints = {"corpus_work_id": {"PK": True}}
         custom_table_properties = {"delta.enableChangeDataFeed": "true"}
-
-
-TABLE = TableDefinition.Meta.object_location
