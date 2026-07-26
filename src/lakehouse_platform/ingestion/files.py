@@ -24,6 +24,8 @@ class DownloadResult:
     size_bytes: int
     downloaded: bool
     resumed: bool
+    source_etag: str | None = None
+    source_last_modified: str | None = None
 
 
 def sha256_file(path: str | Path, chunk_size: int = 1024 * 1024) -> str:
@@ -143,7 +145,15 @@ def download_file(
             os.replace(partial, target)
             size = target.stat().st_size
             progress("DOWNLOAD", "File committed", path=target, bytes=size, sha256=digest)
-            return DownloadResult(target, digest, size, True, append)
+            return DownloadResult(
+                target,
+                digest,
+                size,
+                True,
+                append,
+                response.headers.get("ETag"),
+                response.headers.get("Last-Modified"),
+            )
         except ChecksumMismatch:
             raise
         except (OSError, requests.RequestException) as error:

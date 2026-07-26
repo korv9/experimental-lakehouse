@@ -11,7 +11,8 @@ or a separate HTTP client.
 
 | Source | Profile | Result | Best platform role |
 |---|---|---:|---|
-| Gutendex | `gutendex_plato` | 200 JSON | Discover Gutenberg books and download URLs |
+| Gutendex | `gutendex_plato` | 200 JSON locally; Cloudflare challenge from Databricks | Discovery and human review only |
+| Gutenberg catalog | official `pg_catalog.csv.gz` feed | 200 compressed CSV from Databricks | Production metadata ingestion |
 | Project Gutenberg | `gutenberg_republic_full_text` | 200 text, 1,244,164 bytes | Public-domain full-text corpus |
 | Wikisource | `wikisource_republic_rendered` | 200 JSON, 84,008 HTML characters | Versioned classical works |
 | Internet Archive | `internet_archive_plato` | 200 JSON | Discover item IDs and downloadable files |
@@ -54,11 +55,12 @@ cleaned in Silver.
 
 Start with `philosophy_litterature`:
 
-1. Gutendex discovers public-domain works and exposes format URLs.
-2. Gutenberg plain-text files become append-only Bronze records.
-3. Open Library and Libris enrich editions and identifiers in Silver.
-4. Wikidata resolves authors, eras, countries and philosophical schools.
-5. Gold contains `dim_author`, `dim_work`, `dim_school`, `dim_time` and
+1. Gutendex discovers candidate works locally and provides review evidence.
+2. The official Gutenberg catalog feed is the production metadata source.
+3. Gutenberg plain-text files become append-only Bronze records.
+4. Open Library and Libris enrich editions and identifiers in Silver.
+5. Wikidata resolves authors, eras, countries and philosophical schools.
+6. Gold contains `dim_author`, `dim_work`, `dim_school`, `dim_time` and
    `fact_text_chunk`.
 
 Add `political_speeches` as the second product using Riksdagen API discovery

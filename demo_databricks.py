@@ -56,7 +56,7 @@ def main(spark_session: Any | None = None):
         catalog=_parameter("catalog", "dev_lakehouse"),
         create_catalog=parse_bool(_parameter("create_catalog", "true")),
         run_volume_probe=parse_bool(_parameter("run_volume_probe", "true")),
-        run_api_smoke=parse_bool(_parameter("run_api_smoke", "true")),
+        run_source_smoke=parse_bool(_parameter("run_source_smoke", "true")),
     )
     return run_databricks_demo(spark_session, options)
 

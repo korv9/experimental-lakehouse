@@ -26,14 +26,17 @@ def write_output(spark, df, kind: str, options: dict) -> None:
         progress("WRITER", "Merging Delta table", table=table, keys=",".join(keys))
         if spark.catalog.tableExists(table):
             predicate = " AND ".join(f"target.{key} = source.{key}" for key in keys)
-            (
+            merge = (
                 DeltaTable.forName(spark, table)
                 .alias("target")
                 .merge(df.alias("source"), predicate)
-                .whenMatchedUpdateAll()
-                .whenNotMatchedInsertAll()
-                .execute()
             )
+            when_matched = options.get("when_matched", "update")
+            if when_matched == "update":
+                merge = merge.whenMatchedUpdateAll()
+            elif when_matched != "ignore":
+                raise ValueError("delta_merge when_matched must be 'update' or 'ignore'")
+            merge.whenNotMatchedInsertAll().execute()
         else:
             df.write.format(fmt).mode("overwrite").saveAsTable(table)
         progress("WRITER", "Delta merge completed", table=table)

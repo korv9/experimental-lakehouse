@@ -7,6 +7,7 @@ separation is what lets a new source reuse this client unchanged.
 from __future__ import annotations
 
 import time
+from collections.abc import Mapping
 from typing import Any
 
 import requests
@@ -24,6 +25,7 @@ class RestClient:
         auth=None,
         rate_limiter: RateLimiter | None = None,
         session: requests.Session | None = None,
+        default_headers: Mapping[str, str] | None = None,
     ):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
@@ -31,6 +33,7 @@ class RestClient:
         self.auth = auth  # an auth strategy with .apply(headers) -> headers
         self.rate_limiter = rate_limiter
         self.session = session or requests.Session()
+        self.default_headers = dict(default_headers or {})
 
     def get(self, endpoint: str, params: dict[str, Any] | None = None) -> dict:
         """GET one page and return parsed JSON.
@@ -39,7 +42,9 @@ class RestClient:
         raises so the pipeline run is marked *failed* rather than silently empty.
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        headers = self.auth.apply({}) if self.auth else {}
+        headers = dict(self.default_headers)
+        if self.auth:
+            headers = self.auth.apply(headers)
 
         for attempt in range(1, self.max_retries + 1):
             if self.rate_limiter:
@@ -61,5 +66,15 @@ class RestClient:
                     delay = 2 ** attempt
                 time.sleep(max(0, delay))
                 continue
+            if resp.status_code == 403:
+                response_text = str(getattr(resp, "text", "")).strip().replace("\n", " ")
+                excerpt = response_text[:200]
+                detail = f" Response: {excerpt!r}." if excerpt else ""
+                raise requests.HTTPError(
+                    "HTTP 403: the remote API denied this request. "
+                    "Verify the configured User-Agent and whether the compute egress IP "
+                    f"is allowed.{detail}",
+                    response=resp,
+                )
             resp.raise_for_status()
         raise RuntimeError(f"GET {url} failed after {self.max_retries} attempts")

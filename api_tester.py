@@ -1,7 +1,9 @@
-"""Small Gutendex API smoke test for local use and Databricks terminals.
+"""Small Gutendex discovery test for local, human-reviewed source evaluation.
 
 Gutendex is the JSON metadata API for Project Gutenberg. This script explores
-the response only; it does not write to Bronze or require Spark.
+the response only; it does not write to Bronze or require Spark. The public
+endpoint can present a Cloudflare browser challenge to hosted compute, so the
+production Databricks path uses Project Gutenberg's official catalog feed.
 """
 from __future__ import annotations
 

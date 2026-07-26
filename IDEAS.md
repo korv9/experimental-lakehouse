@@ -26,7 +26,9 @@ one homogeneous corpus.
 
 Initial source roles:
 
-- Gutendex: discover Project Gutenberg works and available formats.
+- Gutendex: local, human-reviewed discovery only; its public endpoint is not a
+  production dependency.
+- Project Gutenberg catalog feed: official cloud-ingested metadata snapshots.
 - Project Gutenberg: plain-text book files.
 - Open Library and Libris: bibliographic and edition metadata.
 - Wikidata: authors, dates, places and philosophical-school enrichment.
@@ -56,8 +58,9 @@ dev_lakehouse
 ├── platform.pipeline_runs                  # Delta table
 ├── platform.ingestion_checkpoints          # Delta table
 ├── platform.download_manifest              # Delta table
-├── bronze.philosophy_litterature_work_raw
+├── bronze.gutenberg_catalog_raw
 ├── bronze.philosophy_litterature_text_manifest
+├── silver.gutenberg_work
 ├── silver.philosophy_litterature_work
 ├── silver.philosophy_litterature_text_version
 ├── silver.philosophy_litterature_text_chunk
@@ -97,16 +100,19 @@ Tables are addressed by their three-part Unity Catalog name.
 
 ### Phase 1 — source discovery and landing
 
-- [ ] Define the curated philosophy author/work seed list.
+- [x] Define and version the curated philosophy author/work seed list.
 - [ ] Record source terms, licenses and jurisdiction notes.
-- [ ] Create Bronze contracts for work metadata and the file manifest.
-- [ ] Query Gutendex incrementally and preserve raw responses.
+- [x] Create Bronze and Silver contracts for the official catalog metadata.
+- [x] Download the official compressed catalog to a governed Volume.
+- [x] Validate gzip/CSV structure and persist SHA-256 artifact manifests.
+- [x] Preserve source-faithful catalog rows in Bronze.
+- [x] Normalize the current catalog and select the reviewed corpus in Silver.
 - [ ] Download plain-text works to the landing volume.
-- [ ] Record URL, ETag, byte size, SHA-256, retrieval time and run ID in
+- [x] Record URL, ETag, byte size, SHA-256, retrieval time and run ID in
       `platform.download_manifest`.
-- [ ] Prove that an interrupted download and interrupted page walk resume
-      without duplicate Bronze rows.
-- [ ] Add source-specific rate limits and a descriptive `User-Agent`.
+- [x] Prove that interrupted downloads resume and snapshot replay creates no
+      duplicate Bronze rows.
+- [x] Add a descriptive source-specific `User-Agent`.
 
 ### Phase 2 — Silver corpus
 

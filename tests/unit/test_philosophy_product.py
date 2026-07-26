@@ -30,23 +30,25 @@ def test_development_environment_uses_fully_qualified_volume_paths():
     )
 
 
-def test_gutendex_source_has_rate_limit_resume_and_uc_bronze_target():
+def test_gutenberg_catalog_source_uses_official_feed_and_uc_targets():
     source = yaml.safe_load(
-        Path("config/sources/philosophy_gutendex.yaml").read_text(encoding="utf-8")
+        Path("config/sources/gutenberg_catalog.yaml").read_text(encoding="utf-8")
     )
 
-    assert source["rate_limit"]["requests_per_second"] == 1
-    assert source["incremental"]["strategy"] == "replay_idempotently"
-    assert source["selection"]["type"] == "corpus_report"
-    assert source["selection"]["batch_size"] == 25
-    assert source["selection"]["accepted_statuses"] == [
-        "matched",
-        "matched_without_plain_text",
-    ]
-    assert source["destination"]["bronze_table"] == (
-        "bronze.philosophy_litterature_work_raw"
+    assert source["url"].endswith("/cache/epub/feeds/pg_catalog.csv.gz")
+    assert source["request"]["headers"]["Accept"] == "application/octet-stream"
+    assert source["request"]["headers"]["User-Agent"].startswith(
+        "experimental-lakehouse/"
     )
-    assert source["destination"]["contract"].endswith("contract:TableDefinition")
+    assert source["file"]["compression"] == "gzip"
+    assert source["file"]["landing_source"] == "gutenberg"
+    assert source["destination"]["bronze_table"] == (
+        "bronze.gutenberg_catalog_raw"
+    )
+    assert source["destination"]["silver_catalog_table"] == "silver.gutenberg_work"
+    assert source["destination"]["silver_product_table"] == (
+        "silver.philosophy_litterature_work"
+    )
 
 
 def test_candidate_corpus_is_product_owned_and_unique():
