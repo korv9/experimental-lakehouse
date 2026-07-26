@@ -27,5 +27,8 @@ class TableDefinition(BaseSchema):
         object_name = "gutenberg_work"
         object_location = "silver.gutenberg_work"
         object_description = "Latest normalized official Gutenberg catalog row per Text#."
-        column_constraints = {"gutenberg_id": {"PK": True}}
+        column_constraints = {
+            "gutenberg_id": {"PK": True},
+            "title": {"NOT_BLANK": True},
+        }
         custom_table_properties = {"delta.enableChangeDataFeed": "true"}

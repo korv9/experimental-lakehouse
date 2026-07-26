@@ -39,9 +39,9 @@ metadata; 54 approved corpus entries currently map to 53 unique Gutenberg IDs.
 Run [`demo_databricks.py`](../../demo_databricks.py) once to create Unity
 Catalog schemas, Volumes and control tables. Then create a Workflow containing:
 
-1. [`ingest_gutenberg_catalog.py`](notebooks/ingest_gutenberg_catalog.py)
-2. [`normalize_gutenberg_catalog.py`](notebooks/normalize_gutenberg_catalog.py), dependent on task 1
-3. [`select_philosophy_corpus.py`](notebooks/select_philosophy_corpus.py), dependent on task 2
+1. [`bronze_gutenberg.py`](notebooks/bronze_gutenberg.py)
+2. [`silver_gutenberg.py`](notebooks/silver_gutenberg.py), dependent on task 1
+3. [`silver_philosophy_corpus.py`](notebooks/silver_philosophy_corpus.py), dependent on task 2
 
 Set `catalog=dev_lakehouse` on all three tasks. Task 1 optionally accepts
 `snapshot_date=YYYY-MM-DD`; blank means the current UTC date.
@@ -70,7 +70,10 @@ The product is self-contained:
 
 ```text
 products/philosophy_litterature/
-├── notebooks/               # uc_read + PySpark + validation + job_config
+├── notebooks/
+│   ├── bronze_gutenberg.py
+│   ├── silver_gutenberg.py
+│   └── silver_philosophy_corpus.py
 ├── tables/<layer>/<table>/  # table contract only
 ├── corpus.yaml
 └── product.yaml
@@ -85,8 +88,10 @@ Every transformation notebook ends with the same readable configuration:
 
 ```python
 job_config = {
-    "pipeline_name": "gutenberg_catalog_bronze_to_silver",
+    "pipeline_name": "silver_gutenberg",
     "source_name": "project_gutenberg_catalog",
+    "contract": TableDefinition,
+    "expectations": {"min_rows": 1},
     "target": {
         "path": TableDefinition.object_location(),
         "format": "delta",
@@ -94,15 +99,19 @@ job_config = {
         "keys": ["gutenberg_id"],
         "when_matched": "update",  # update or ignore
     },
-    "transformation": build_table,
-    "validation": {
-        "contract": TableDefinition,
-        "checks": [validate_gutenberg_work],
-    },
 }
 
-process_job(spark, job_config, catalog="dev_lakehouse")
+process_job(
+    spark,
+    job_config,
+    catalog="dev_lakehouse",
+    dataframe=df_silver,
+)
 ```
+
+Notebook and pipeline names always start with their target medallion layer.
+Inside transformation notebooks, numbered semantic DataFrames make the order
+visible, for example `df_1_parsed`, `df_2_ranked` and `df_4_silver`.
 
 The remaining text, NLP and Gold backlog is maintained in
 [`IDEAS.md`](../../IDEAS.md).

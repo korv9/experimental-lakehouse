@@ -1,23 +1,17 @@
 # Databricks notebook source
-"""Official Gutenberg catalog -> governed Volume snapshot -> Bronze."""
+"""BRONZE | Official Gutenberg catalog -> governed Volume snapshot -> Bronze."""
 from __future__ import annotations
 
-import os
-import sys
 from datetime import date, datetime, timezone
-from pathlib import Path
 from typing import Any
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
-REPOSITORY_ROOT = (
-    Path(__file__).resolve().parents[3] if "__file__" in globals() else Path.cwd()
-)
-for import_root in (REPOSITORY_ROOT / "src", REPOSITORY_ROOT):
-    if str(import_root) not in sys.path:
-        sys.path.insert(0, str(import_root))
+from products.philosophy_litterature.notebooks import _runtime
+
+_runtime.bootstrap()
 
 from lakehouse_platform.ingestion.catalog_files import (
     GzipCsvSnapshot,
@@ -30,10 +24,10 @@ from products.philosophy_litterature.tables.bronze.gutenberg_catalog_raw.contrac
     TableDefinition,
 )
 
-SOURCE_CONFIG = REPOSITORY_ROOT / "config" / "sources" / "gutenberg_catalog.yaml"
+SOURCE_CONFIG = _runtime.REPOSITORY_ROOT / "config" / "sources" / "gutenberg_catalog.yaml"
 
 
-def build_gutenberg_catalog_raw(
+def build_bronze_gutenberg(
     snapshot: GzipCsvSnapshot,
     context: JobContext,
 ) -> DataFrame:
@@ -88,35 +82,11 @@ def build_gutenberg_catalog_raw(
     ).dropDuplicates(["ingestion_id"])
 
 
-def validate_gutenberg_catalog_raw(result: DataFrame) -> None:
-    duplicate = (
-        result.groupBy("source_record_id")
-        .count()
-        .filter(F.col("count") > 1)
-        .limit(1)
-    )
-    if duplicate.count():
-        raise ValueError("Gutenberg catalog contains conflicting duplicate Text# rows")
-
-
-def _parameter(name: str, default: str) -> str:
-    dbutils_object: Any = globals().get("dbutils")
-    if dbutils_object is None:
-        return os.environ.get(name.upper(), default)
-    dbutils_object.widgets.text(name, default)
-    return str(dbutils_object.widgets.get(name))
-
-
 def main(spark_session: Any | None = None) -> str:
-    if spark_session is None:
-        from pyspark.sql import SparkSession
-
-        spark_session = SparkSession.getActiveSession()
-        if spark_session is None:
-            raise RuntimeError("Attach Unity Catalog-enabled compute")
-
-    catalog = _parameter("catalog", "dev_lakehouse")
-    snapshot_value = _parameter("snapshot_date", "").strip()
+    spark_session = _runtime.active_spark(spark_session)
+    dbutils_object = globals().get("dbutils")
+    catalog = _runtime.parameter("catalog", "dev_lakehouse", dbutils_object)
+    snapshot_value = _runtime.parameter("snapshot_date", "", dbutils_object).strip()
     snapshot_date = (
         date.fromisoformat(snapshot_value)
         if snapshot_value
@@ -132,7 +102,7 @@ def main(spark_session: Any | None = None) -> str:
             snapshot_date=snapshot_date,
             run_id=context.run_id,
         )
-        return build_gutenberg_catalog_raw(snapshot, context)
+        return build_bronze_gutenberg(snapshot, context)
 
     def update_watermark(context: JobContext) -> None:
         set_watermark(
@@ -150,8 +120,13 @@ def main(spark_session: Any | None = None) -> str:
     print(f"Target:   {catalog}.{TableDefinition.object_location()}")
 
     job_config = {
-        "pipeline_name": "ingest_gutenberg_catalog",
+        "pipeline_name": "bronze_gutenberg",
         "source_name": source_config.name,
+        "contract": TableDefinition,
+        "expectations": {
+            "min_rows": 1,
+            "unique": ["source_record_id"],
+        },
         "target": {
             "path": TableDefinition.object_location(),
             "format": "delta",
@@ -160,10 +135,6 @@ def main(spark_session: Any | None = None) -> str:
             "when_matched": "ignore",
         },
         "transformation": build_table,
-        "validation": {
-            "contract": TableDefinition,
-            "checks": [validate_gutenberg_catalog_raw],
-        },
         "on_success": update_watermark,
     }
 
