@@ -28,7 +28,6 @@ def _qualified_table(catalog: str, path: str) -> str:
 def _write_target(spark: Any, result: Any, target: dict[str, Any], table: str) -> None:
     mode = str(target["mode"])
     file_format = str(target.get("format", "delta"))
-
     if mode == "merge":
         keys = list(target.get("keys", []))
         if not keys:
@@ -45,7 +44,6 @@ def _write_target(spark: Any, result: Any, target: dict[str, Any], table: str) -
             },
         )
         return
-
     if mode in {"overwrite", "append"}:
         write_output(
             spark,
@@ -59,26 +57,65 @@ def _write_target(spark: Any, result: Any, target: dict[str, Any], table: str) -
             },
         )
         return
-
     raise ValueError("target.mode must be 'merge', 'overwrite' or 'append'")
 
 
-def _validate(result: Any, validation: Any) -> None:
-    if hasattr(validation, "validate"):
-        validation.validate(result)
-        return
+def _validate(result: Any, contract: type, expectations: dict[str, Any]) -> None:
+    progress(
+        "SCHEMA",
+        "Validating output contract",
+        table=contract.object_location(),
+        expected_columns=",".join(contract.column_names()),
+    )
+    try:
+        contract.validate(result)
+    except Exception as error:
+        progress("SCHEMA", "Contract validation failed", error=str(error))
+        print(f"[SCHEMA] Expected: {contract.spark_schema().simpleString()}")
+        print("[SCHEMA] Actual:")
+        result.printSchema()
+        raise
 
-    contract = validation["contract"]
-    contract.validate(result)
-    for check in validation.get("checks", []):
-        check(result)
+    expected_rows = expectations.get("row_count")
+    if expected_rows is not None:
+        actual_rows = result.count()
+        if actual_rows != int(expected_rows):
+            raise ValueError(f"Expected {expected_rows} rows, produced {actual_rows}")
+
+    minimum_rows = expectations.get("min_rows")
+    if minimum_rows is not None:
+        actual_rows = result.count()
+        if actual_rows < int(minimum_rows):
+            raise ValueError(f"Expected at least {minimum_rows} rows, produced {actual_rows}")
+
+    for column, expected in expectations.get("array_contains", {}).items():
+        from pyspark.sql import functions as F
+
+        invalid = result.filter(~F.array_contains(F.col(column), expected)).limit(1)
+        if invalid.count():
+            raise ValueError(f"Column '{column}' must contain {expected!r} in every row")
+
+    for columns in expectations.get("unique", []):
+        keys = [columns] if isinstance(columns, str) else list(columns)
+        duplicate = result.groupBy(*keys).count().filter("count > 1").limit(1)
+        if duplicate.count():
+            raise ValueError(f"Expected unique values for columns {keys}")
+
+    progress("SCHEMA", "Output contract passed", table=contract.object_location())
 
 
-def process_job(spark: Any, job_config: dict[str, Any], *, catalog: str) -> str:
-    """Transform, validate and write one table from a readable job configuration."""
+def process_job(
+    spark: Any,
+    job_config: dict[str, Any],
+    *,
+    catalog: str,
+    dataframe: Any | None = None,
+) -> str:
+    """Validate and write a DataFrame while managing logging and failure reporting."""
     pipeline_name = str(job_config["pipeline_name"])
     source_name = str(job_config["source_name"])
     target_config = dict(job_config["target"])
+    contract = job_config["contract"]
     target_table = _qualified_table(catalog, str(target_config["path"]))
     run_id = start_run(
         spark,
@@ -87,19 +124,15 @@ def process_job(spark: Any, job_config: dict[str, Any], *, catalog: str) -> str:
         source_name=source_name,
     )
     context = JobContext(spark=spark, catalog=catalog, run_id=run_id)
-    progress("JOB", "Job started", pipeline=pipeline_name, target=target_table)
+    progress("JOB", "Job started", pipeline=pipeline_name, target=target_table, run_id=run_id)
 
     try:
-        result = job_config["transformation"](context)
-        _validate(result, job_config["validation"])
+        result = dataframe
+        if result is None:
+            result = job_config["transformation"](context)
+        _validate(result, contract, job_config.get("expectations", {}))
         rows = result.count()
-        progress(
-            "JOB",
-            "Writing table",
-            target=target_table,
-            mode=target_config["mode"],
-            rows=rows,
-        )
+        progress("JOB", "Writing table", target=target_table, mode=target_config["mode"], rows=rows)
         _write_target(spark, result, target_config, target_table)
 
         on_success = job_config.get("on_success")
@@ -111,5 +144,13 @@ def process_job(spark: Any, job_config: dict[str, Any], *, catalog: str) -> str:
         return run_id
     except Exception as error:
         finish_run(spark, catalog, run_id, status="failed", error=str(error))
-        progress("JOB", "Job failed", target=target_table, error=str(error))
+        progress(
+            "JOB",
+            "Job failed",
+            pipeline=pipeline_name,
+            target=target_table,
+            run_id=run_id,
+            error_type=type(error).__name__,
+            error=str(error),
+        )
         raise

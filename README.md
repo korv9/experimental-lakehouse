@@ -324,14 +324,14 @@ start any product ingestion.
 After the summary is green, configure one Databricks Workflow with three
 dependent notebook tasks:
 
-1. [`ingest_gutenberg_catalog.py`](products/philosophy_litterature/notebooks/ingest_gutenberg_catalog.py)
+1. [`bronze_gutenberg.py`](products/philosophy_litterature/notebooks/bronze_gutenberg.py)
    downloads the official `pg_catalog.csv.gz` feed atomically, validates gzip
    and CSV structure, records SHA-256 lineage and merges source-faithful rows
    into `bronze.gutenberg_catalog_raw`.
-2. [`normalize_gutenberg_catalog.py`](products/philosophy_litterature/notebooks/normalize_gutenberg_catalog.py)
+2. [`silver_gutenberg.py`](products/philosophy_litterature/notebooks/silver_gutenberg.py)
    produces one current normalized row per Gutenberg ID in
    `silver.gutenberg_work`.
-3. [`select_philosophy_corpus.py`](products/philosophy_litterature/notebooks/select_philosophy_corpus.py)
+3. [`silver_philosophy_corpus.py`](products/philosophy_litterature/notebooks/silver_philosophy_corpus.py)
    joins the reviewed corpus intent to official metadata and writes
    `silver.philosophy_litterature_work`.
 

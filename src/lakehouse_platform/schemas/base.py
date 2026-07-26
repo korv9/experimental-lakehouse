@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import dataclasses
 import datetime as _dt
+import types
 import typing
 
 
@@ -49,9 +50,10 @@ class BaseSchema:
     def spark_schema(cls):
         from pyspark.sql import types as T
 
+        annotations = typing.get_type_hints(cls)
         fields = []
         for f in dataclasses.fields(cls):
-            spark_type, nullable = _resolve(f.type, T)
+            spark_type, nullable = _resolve(annotations[f.name], T)
             fields.append(T.StructField(f.name, spark_type, nullable))
         return T.StructType(fields)
 
@@ -59,8 +61,8 @@ class BaseSchema:
     def validate(cls, df) -> bool:
         """Check the produced DataFrame matches the contract.
 
-        Structural: exactly the declared columns (no missing, no extras).
-        Integrity: primary-key columns contain no nulls.
+        Structural: exact columns and Spark data types.
+        Integrity: required columns are non-null and primary keys are unique.
         Raises ValueError on any violation so process_job fails loudly.
         """
         from pyspark.sql import functions as F
@@ -72,22 +74,65 @@ class BaseSchema:
             raise ValueError(f"{cls.object_location()}: missing columns {sorted(missing)}")
         if extra:
             raise ValueError(f"{cls.object_location()}: unexpected columns {sorted(extra)}")
-        for pk in cls.primary_keys():
-            if df.where(F.col(pk).isNull()).limit(1).count() > 0:
-                raise ValueError(f"{cls.object_location()}: primary key '{pk}' contains nulls")
+
+        expected_schema = cls.spark_schema()
+        expected_types = {
+            field.name: field.dataType.simpleString() for field in expected_schema.fields
+        }
+        actual_types = {
+            field.name: field.dataType.simpleString() for field in df.schema.fields
+        }
+        wrong_types = {
+            name: {"expected": expected_types[name], "actual": actual_types[name]}
+            for name in expected_types
+            if expected_types[name] != actual_types[name]
+        }
+        if wrong_types:
+            raise ValueError(f"{cls.object_location()}: wrong column types {wrong_types}")
+
+        required = [field.name for field in expected_schema.fields if not field.nullable]
+        if required:
+            null_counts = df.agg(
+                *[
+                    F.sum(F.when(F.col(name).isNull(), 1).otherwise(0)).alias(name)
+                    for name in required
+                ]
+            ).collect()[0]
+            invalid = {name: null_counts[name] for name in required if null_counts[name]}
+            if invalid:
+                raise ValueError(
+                    f"{cls.object_location()}: required columns contain nulls {invalid}"
+                )
+
+        constraints = getattr(cls.Meta, "column_constraints", {})
+        not_blank = [name for name, spec in constraints.items() if spec.get("NOT_BLANK")]
+        for name in not_blank:
+            invalid = df.filter(F.length(F.trim(F.col(name))) == 0).limit(1)
+            if invalid.count():
+                raise ValueError(
+                    f"{cls.object_location()}: column '{name}' contains blank values"
+                )
+
+        keys = cls.primary_keys()
+        if keys:
+            duplicate = df.groupBy(*keys).count().filter(F.col("count") > 1).limit(1)
+            if duplicate.count():
+                raise ValueError(
+                    f"{cls.object_location()}: duplicate primary key values for {keys}"
+                )
         return True
 
 
 def _resolve(anno, T):
     """(annotation) -> (spark_type, nullable). Handles Optional, custom and native."""
     nullable = False
-    if typing.get_origin(anno) is typing.Union:
+    if typing.get_origin(anno) in (typing.Union, types.UnionType):
         args = [a for a in typing.get_args(anno) if a is not type(None)]
         nullable, anno = True, args[0]
 
     # arrays: bare `list` or list[...] -> array<string> (our arrays are string arrays)
     if anno is list or typing.get_origin(anno) is list:
-        return T.ArrayType(T.StringType()), True
+        return T.ArrayType(T.StringType()), nullable
 
     # custom marker types from types.py
     if isinstance(anno, type) and getattr(anno, "spark_name", None):
