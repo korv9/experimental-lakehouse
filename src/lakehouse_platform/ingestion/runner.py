@@ -19,8 +19,15 @@ from datetime import datetime, timezone
 import yaml
 from pyspark.sql import SparkSession
 
+from lakehouse_platform.core.imports import import_callable
 from lakehouse_platform.ingestion.authentication.none import NoAuth
 from lakehouse_platform.ingestion.clients.rest import RestClient
+from lakehouse_platform.ingestion.corpus import (
+    id_batches,
+    load_corpus_selection,
+    resolve_product_path,
+    selection_options,
+)
 from lakehouse_platform.ingestion.identity import stable_ingestion_id
 from lakehouse_platform.ingestion.pagination.cursor import cursor_params, nested_value, paginate
 from lakehouse_platform.ingestion.pagination.page_number import page_params
@@ -83,11 +90,25 @@ def _target_name(catalog: str, configured: str) -> str:
     raise ValueError("destination.bronze_table must be schema.table or catalog.schema.table")
 
 
-def _commit_bronze_page(spark: SparkSession, target: str, rows: list[dict]) -> None:
+def _load_contract(config: dict):
+    contract_path = config.get("destination", {}).get("contract")
+    return import_callable(contract_path) if contract_path else None
+
+
+def _commit_bronze_page(
+    spark: SparkSession,
+    target: str,
+    rows: list[dict],
+    *,
+    contract=None,
+) -> None:
     """Insert only unseen source versions, making page replay idempotent."""
     if not rows:
         return
-    frame = spark.createDataFrame(rows).dropDuplicates(["ingestion_id"])
+    schema = contract.spark_schema() if contract else None
+    frame = spark.createDataFrame(rows, schema=schema).dropDuplicates(["ingestion_id"])
+    if contract:
+        contract.validate(frame)
     if not spark.catalog.tableExists(target):
         frame.write.format("delta").mode("append").saveAsTable(target)
         return
@@ -261,3 +282,167 @@ def ingest(spark: SparkSession, config_path: str, catalog: str = "dev_lakehouse"
         raise
 
     return run_id
+
+
+def ingest_corpus(
+    spark: SparkSession,
+    config_path: str,
+    catalog: str = "dev_lakehouse",
+) -> str:
+    """Ingest approved corpus IDs as replay-safe Gutendex metadata batches."""
+    cfg = load_source_config(config_path)
+    source = str(cfg["source_name"])
+    statuses, batch_size, id_parameter = selection_options(cfg)
+    report_path = resolve_product_path(config_path, cfg["selection"]["report"])
+    selection = load_corpus_selection(report_path, accepted_statuses=statuses)
+    batches = id_batches(selection.source_record_ids, batch_size)
+    pipeline_name = f"ingest_{source}_corpus"
+    partition_key = selection.corpus_id
+    target = _target_name(
+        catalog,
+        cfg.get("destination", {}).get("bronze_table", f"bronze.{source}_records"),
+    )
+    contract = _load_contract(cfg)
+
+    progress(
+        "INGEST",
+        "Approved corpus loaded",
+        corpus=selection.corpus_id,
+        works=len(selection.source_record_ids),
+        duplicate_source_ids=list(selection.duplicate_source_ids),
+        batches=len(batches),
+        target=target,
+    )
+    run_id = start_run(
+        spark,
+        catalog,
+        pipeline_name=pipeline_name,
+        source_name=source,
+    )
+    progress("INGEST", "Corpus pipeline run opened", run_id=run_id)
+
+    rate_cfg = cfg.get("rate_limit", {})
+    rate_limiter = (
+        RateLimiter(float(rate_cfg["requests_per_second"]))
+        if rate_cfg.get("requests_per_second")
+        else None
+    )
+    client = RestClient(cfg["base_url"], auth=NoAuth(), rate_limiter=rate_limiter)
+    checkpoint = get_checkpoint(
+        spark,
+        catalog,
+        pipeline_name=pipeline_name,
+        source_name=source,
+        partition_key=partition_key,
+    )
+    last_batch = (
+        checkpoint.page_number
+        if checkpoint is not None and checkpoint.status != "completed"
+        else 0
+    )
+    batch_id = str(uuid.uuid4())
+    ingested_at = datetime.now(timezone.utc)
+    records_read = 0
+
+    try:
+        for batch_number, source_ids in enumerate(batches, start=1):
+            if batch_number <= last_batch:
+                progress("INGEST", "Skipping committed corpus batch", batch=batch_number)
+                continue
+            params = {
+                **dict(cfg.get("request", {}).get("params", {})),
+                id_parameter: ",".join(source_ids),
+            }
+            progress(
+                "INGEST",
+                "Requesting Gutendex corpus batch",
+                batch=batch_number,
+                total_batches=len(batches),
+                ids=len(source_ids),
+            )
+            body = client.get(cfg["endpoint"], params=params)
+            records_path = str(cfg.get("pagination", {}).get("records_path", "results"))
+            records = nested_value(body, records_path, [])
+            if not isinstance(records, list):
+                raise TypeError(
+                    f"Corpus records path {records_path!r} did not resolve to a list"
+                )
+            returned_ids = {str(record.get("id")) for record in records if isinstance(record, dict)}
+            missing_ids = sorted(set(source_ids) - returned_ids)
+            unexpected_ids = sorted(returned_ids - set(source_ids))
+            if missing_ids or unexpected_ids:
+                raise RuntimeError(
+                    "Gutendex corpus batch did not match the approved IDs: "
+                    f"missing={missing_ids}, unexpected={unexpected_ids}"
+                )
+            rows = _bronze_rows(
+                records,
+                source=source,
+                endpoint=cfg["endpoint"],
+                params=params,
+                run_id=run_id,
+                batch_id=batch_id,
+                ingested_at=ingested_at,
+                schema_version=cfg.get("schema_version", "v1"),
+            )
+            _commit_bronze_page(spark, target, rows, contract=contract)
+            records_read += len(rows)
+            last_batch = batch_number
+            status = "completed" if batch_number == len(batches) else "running"
+            set_checkpoint(
+                spark,
+                catalog,
+                IngestionCheckpoint(
+                    pipeline_name,
+                    source,
+                    partition_key,
+                    None,
+                    None,
+                    batch_number,
+                    status,
+                    run_id,
+                ),
+            )
+            progress(
+                "INGEST",
+                "Corpus batch committed",
+                batch=batch_number,
+                rows=len(rows),
+                status=status,
+            )
+
+        set_watermark(spark, catalog, source, "ingested_at", ingested_at.isoformat())
+        finish_run(
+            spark,
+            catalog,
+            run_id,
+            status="success",
+            read=records_read,
+            written=records_read,
+        )
+        progress(
+            "INGEST",
+            "Corpus ingestion completed",
+            run_id=run_id,
+            rows=records_read,
+            target=target,
+        )
+        return run_id
+    except Exception as error:
+        progress("INGEST", "Corpus ingestion failed", run_id=run_id, error=str(error))
+        set_checkpoint(
+            spark,
+            catalog,
+            IngestionCheckpoint(
+                pipeline_name,
+                source,
+                partition_key,
+                None,
+                None,
+                last_batch,
+                "failed",
+                run_id,
+            ),
+        )
+        finish_run(spark, catalog, run_id, status="failed", error=str(error))
+        raise

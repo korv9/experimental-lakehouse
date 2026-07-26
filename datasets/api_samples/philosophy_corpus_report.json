@@ -1,0 +1,1507 @@
+{
+  "corpus": {
+    "id": "philosophy_foundations_v1",
+    "language": "en",
+    "status": "candidate",
+    "description": "Candidate works for Gutendex discovery. A match is not a rights clearance; editions, translations and regional copyright must be reviewed separately.\n"
+  },
+  "summary": {
+    "matched": 53,
+    "matched_without_plain_text": 1,
+    "not_found": 27,
+    "review": 1
+  },
+  "diagnostics": {
+    "duplicate_gutendex_ids": [
+      205
+    ]
+  },
+  "works": [
+    {
+      "id": "plato_republic",
+      "period": "ancient_greece",
+      "author": "Plato",
+      "title": "Republic",
+      "query": "plato republic",
+      "status": "matched",
+      "candidate_count": 4,
+      "title_score": 1.0,
+      "gutendex_id": 55201,
+      "matched_title": "The Republic of Plato",
+      "matched_authors": [
+        "Plato"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/55201.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/55201",
+      "http_status": 200
+    },
+    {
+      "id": "plato_phaedo",
+      "period": "ancient_greece",
+      "author": "Plato",
+      "title": "Phaedo",
+      "query": "plato phaedo",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 1658,
+      "matched_title": "Phaedo",
+      "matched_authors": [
+        "Plato"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/1658.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/1658",
+      "http_status": 200
+    },
+    {
+      "id": "plato_symposium",
+      "period": "ancient_greece",
+      "author": "Plato",
+      "title": "Symposium",
+      "query": "plato symposium",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 1600,
+      "matched_title": "Symposium",
+      "matched_authors": [
+        "Plato"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/1600.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/1600",
+      "http_status": 200
+    },
+    {
+      "id": "plato_apology",
+      "period": "ancient_greece",
+      "author": "Plato",
+      "title": "Apology",
+      "query": "plato apology",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 1656,
+      "matched_title": "Apology",
+      "matched_authors": [
+        "Plato"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/1656.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/1656",
+      "http_status": 200
+    },
+    {
+      "id": "aristotle_nicomachean_ethics",
+      "period": "ancient_greece",
+      "author": "Aristotle",
+      "title": "Nicomachean Ethics",
+      "query": "aristotle nicomachean ethics",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 8438,
+      "matched_title": "The Nicomachean ethics of Aristotle",
+      "matched_authors": [
+        "Aristotle"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/8438.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/8438",
+      "http_status": 200
+    },
+    {
+      "id": "aristotle_politics",
+      "period": "ancient_greece",
+      "author": "Aristotle",
+      "title": "Politics",
+      "query": "aristotle politics",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 6762,
+      "matched_title": "Politics: A Treatise on Government",
+      "matched_authors": [
+        "Aristotle"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/6762.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/6762",
+      "http_status": 200
+    },
+    {
+      "id": "aristotle_metaphysics",
+      "period": "ancient_greece",
+      "author": "Aristotle",
+      "title": "Metaphysics",
+      "query": "aristotle metaphysics",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "aristotle_on_the_soul",
+      "period": "ancient_greece",
+      "author": "Aristotle",
+      "title": "On the Soul",
+      "query": "aristotle soul",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "epicurus_letter_menoeceus",
+      "period": "hellenism",
+      "author": "Epicurus",
+      "title": "Letter to Menoeceus",
+      "query": "epicurus menoeceus",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "epictetus_discourses",
+      "period": "hellenism",
+      "author": "Epictetus",
+      "title": "Discourses",
+      "query": "epictetus discourses",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 10661,
+      "matched_title": "A Selection from the Discourses of Epictetus with the Encheiridion",
+      "matched_authors": [
+        "Epictetus"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/10661.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/10661",
+      "http_status": 200
+    },
+    {
+      "id": "epictetus_enchiridion",
+      "period": "hellenism",
+      "author": "Epictetus",
+      "title": "Enchiridion",
+      "query": "epictetus enchiridion",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 45109,
+      "matched_title": "The Enchiridion",
+      "matched_authors": [
+        "Epictetus"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/45109.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/45109",
+      "http_status": 200
+    },
+    {
+      "id": "marcus_aurelius_meditations",
+      "period": "hellenism",
+      "author": "Marcus Aurelius",
+      "title": "Meditations",
+      "query": "marcus aurelius meditations",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 2680,
+      "matched_title": "Meditations",
+      "matched_authors": [
+        "Marcus Aurelius, Emperor of Rome"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/2680.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/2680",
+      "http_status": 200
+    },
+    {
+      "id": "seneca_letters_stoic",
+      "period": "hellenism",
+      "author": "Seneca",
+      "title": "Letters from a Stoic",
+      "query": "seneca moral letters lucilius",
+      "title_aliases": [
+        "Moral Letters to Lucilius"
+      ],
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "cicero_on_duties",
+      "period": "rome",
+      "author": "Cicero",
+      "title": "On Duties",
+      "query": "cicero duties",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "cicero_on_republic",
+      "period": "rome",
+      "author": "Cicero",
+      "title": "On the Republic",
+      "query": "cicero republic",
+      "title_aliases": [
+        "De Re Publica"
+      ],
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 54161,
+      "matched_title": "The republic of Cicero: Translated from the Latin; and Accompanied With a Critical and Historical Introduction.",
+      "matched_authors": [
+        "Cicero, Marcus Tullius"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/54161.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/54161",
+      "http_status": 200
+    },
+    {
+      "id": "lucretius_nature_things",
+      "period": "rome",
+      "author": "Lucretius",
+      "title": "On the Nature of Things",
+      "query": "lucretius nature things",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 785,
+      "matched_title": "On the Nature of Things",
+      "matched_authors": [
+        "Lucretius Carus, Titus"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/785.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/785",
+      "http_status": 200
+    },
+    {
+      "id": "augustine_confessions",
+      "period": "medieval_religion",
+      "author": "Augustine",
+      "title": "Confessions",
+      "query": "augustine confessions",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 3296,
+      "matched_title": "The Confessions of St. Augustine",
+      "matched_authors": [
+        "Augustine, of Hippo, Saint"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/3296.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/3296",
+      "http_status": 200
+    },
+    {
+      "id": "augustine_city_god",
+      "period": "medieval_religion",
+      "author": "Augustine",
+      "title": "City of God",
+      "query": "augustine city god",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 45304,
+      "matched_title": "The City of God, Volume I",
+      "matched_authors": [
+        "Augustine, of Hippo, Saint"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/45304.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/45304",
+      "http_status": 200
+    },
+    {
+      "id": "boethius_consolation",
+      "period": "medieval_religion",
+      "author": "Boethius",
+      "title": "The Consolation of Philosophy",
+      "query": "boethius consolation philosophy",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 14328,
+      "matched_title": "The Consolation of Philosophy",
+      "matched_authors": [
+        "Boethius"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/14328.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/14328",
+      "http_status": 200
+    },
+    {
+      "id": "aquinas_summa",
+      "period": "medieval_religion",
+      "author": "Thomas Aquinas",
+      "title": "Summa Theologica",
+      "query": "aquinas summa theologica",
+      "status": "matched",
+      "candidate_count": 4,
+      "title_score": 1.0,
+      "gutendex_id": 17611,
+      "matched_title": "Summa Theologica, Part I (Prima Pars): From the Complete American Edition",
+      "matched_authors": [
+        "Thomas, Aquinas, Saint"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/17611.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/17611",
+      "http_status": 200
+    },
+    {
+      "id": "anselm_proslogion",
+      "period": "medieval_religion",
+      "author": "Anselm",
+      "title": "Proslogion",
+      "query": "anselm proslogion",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "machiavelli_prince",
+      "period": "renaissance",
+      "author": "Niccolò Machiavelli",
+      "title": "The Prince",
+      "query": "machiavelli prince",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 1232,
+      "matched_title": "The Prince",
+      "matched_authors": [
+        "Machiavelli, Niccolò"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/1232.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/1232",
+      "http_status": 200
+    },
+    {
+      "id": "more_utopia",
+      "period": "renaissance",
+      "author": "Thomas More",
+      "title": "Utopia",
+      "query": "thomas more utopia",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 2130,
+      "matched_title": "Utopia",
+      "matched_authors": [
+        "More, Thomas, Saint"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/2130.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/2130",
+      "http_status": 200
+    },
+    {
+      "id": "erasmus_praise_folly",
+      "period": "renaissance",
+      "author": "Erasmus",
+      "title": "The Praise of Folly",
+      "query": "erasmus praise folly",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 30201,
+      "matched_title": "In Praise of Folly: Illustrated with Many Curious Cuts",
+      "matched_authors": [
+        "Erasmus, Desiderius"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/30201.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/30201",
+      "http_status": 200
+    },
+    {
+      "id": "descartes_meditations",
+      "period": "rationalism",
+      "author": "René Descartes",
+      "title": "Meditations",
+      "query": "descartes meditations",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 70091,
+      "matched_title": "Six metaphysical meditations: $b Wherein it is proved that there is a God and that mans mind is really distinct from his body",
+      "matched_authors": [
+        "Descartes, René"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/70091.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/70091",
+      "http_status": 200
+    },
+    {
+      "id": "descartes_discourse_method",
+      "period": "rationalism",
+      "author": "René Descartes",
+      "title": "Discourse on Method",
+      "query": "descartes discourse method",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 59,
+      "matched_title": "Discourse on the Method of Rightly Conducting One's Reason and of Seeking Truth in the Sciences",
+      "matched_authors": [
+        "Descartes, René"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/59.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/59",
+      "http_status": 200
+    },
+    {
+      "id": "spinoza_ethics",
+      "period": "rationalism",
+      "author": "Baruch Spinoza",
+      "title": "Ethics",
+      "query": "spinoza ethics",
+      "status": "matched",
+      "candidate_count": 6,
+      "title_score": 1.0,
+      "gutendex_id": 3800,
+      "matched_title": "Ethics",
+      "matched_authors": [
+        "Spinoza, Benedictus de"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/3800.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/3800",
+      "http_status": 200
+    },
+    {
+      "id": "leibniz_monadology",
+      "period": "rationalism",
+      "author": "Gottfried Wilhelm Leibniz",
+      "title": "Monadology",
+      "query": "leibniz monadology",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "bacon_novum_organum",
+      "period": "empiricism",
+      "author": "Francis Bacon",
+      "title": "Novum Organum",
+      "query": "francis bacon novum organum",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 45988,
+      "matched_title": "Novum organum : $b or, True suggestions for the interpretation of nature",
+      "matched_authors": [
+        "Bacon, Francis"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/45988.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/45988",
+      "http_status": 200
+    },
+    {
+      "id": "hobbes_leviathan",
+      "period": "empiricism",
+      "author": "Thomas Hobbes",
+      "title": "Leviathan",
+      "query": "hobbes leviathan",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 3207,
+      "matched_title": "Leviathan",
+      "matched_authors": [
+        "Hobbes, Thomas"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/3207.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/3207",
+      "http_status": 200
+    },
+    {
+      "id": "locke_human_understanding",
+      "period": "empiricism",
+      "author": "John Locke",
+      "title": "An Essay Concerning Human Understanding",
+      "query": "locke essay human understanding",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 0.75,
+      "gutendex_id": 10615,
+      "matched_title": "An Essay Concerning Humane Understanding, Volume 1: MDCXC, Based on the 2nd Edition, Books 1 and 2",
+      "matched_authors": [
+        "Locke, John"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/10615.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/10615",
+      "http_status": 200
+    },
+    {
+      "id": "locke_two_treatises",
+      "period": "empiricism",
+      "author": "John Locke",
+      "title": "Two Treatises of Government",
+      "query": "locke two treatises government",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "berkeley_human_knowledge",
+      "period": "empiricism",
+      "author": "George Berkeley",
+      "title": "A Treatise Concerning the Principles of Human Knowledge",
+      "query": "berkeley principles human knowledge",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 4723,
+      "matched_title": "A Treatise Concerning the Principles of Human Knowledge",
+      "matched_authors": [
+        "Berkeley, George"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/4723.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/4723",
+      "http_status": 200
+    },
+    {
+      "id": "hume_human_nature",
+      "period": "empiricism",
+      "author": "David Hume",
+      "title": "A Treatise of Human Nature",
+      "query": "hume treatise human nature",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 4705,
+      "matched_title": "A Treatise of Human Nature",
+      "matched_authors": [
+        "Hume, David"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/4705.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/4705",
+      "http_status": 200
+    },
+    {
+      "id": "hume_human_understanding",
+      "period": "empiricism",
+      "author": "David Hume",
+      "title": "An Enquiry Concerning Human Understanding",
+      "query": "hume enquiry human understanding",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 9662,
+      "matched_title": "An Enquiry Concerning Human Understanding",
+      "matched_authors": [
+        "Hume, David"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/9662.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/9662",
+      "http_status": 200
+    },
+    {
+      "id": "rousseau_social_contract",
+      "period": "enlightenment",
+      "author": "Jean-Jacques Rousseau",
+      "title": "The Social Contract",
+      "query": "rousseau social contract",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 46333,
+      "matched_title": "The social contract & discourses",
+      "matched_authors": [
+        "Rousseau, Jean-Jacques"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/46333.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/46333",
+      "http_status": 200
+    },
+    {
+      "id": "rousseau_inequality",
+      "period": "enlightenment",
+      "author": "Jean-Jacques Rousseau",
+      "title": "Discourse on Inequality",
+      "query": "rousseau discourse inequality",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 11136,
+      "matched_title": "A Discourse Upon the Origin and the Foundation of the Inequality Among Mankind",
+      "matched_authors": [
+        "Rousseau, Jean-Jacques"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/11136.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/11136",
+      "http_status": 200
+    },
+    {
+      "id": "voltaire_candide",
+      "period": "enlightenment",
+      "author": "Voltaire",
+      "title": "Candide",
+      "query": "voltaire candide",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 19942,
+      "matched_title": "Candide",
+      "matched_authors": [
+        "Voltaire"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/19942.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/19942",
+      "http_status": 200
+    },
+    {
+      "id": "montesquieu_spirit_laws",
+      "period": "enlightenment",
+      "author": "Montesquieu",
+      "title": "The Spirit of Laws",
+      "query": "montesquieu spirit laws",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "diderot_selected",
+      "period": "enlightenment",
+      "author": "Denis Diderot",
+      "title": "Selected Writings",
+      "query": "diderot",
+      "status": "review",
+      "candidate_count": 4,
+      "title_score": 0.0,
+      "gutendex_id": 54672,
+      "matched_title": "Les Bijoux Indiscrets, or, The Indiscreet Toys",
+      "matched_authors": [
+        "Diderot, Denis"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/54672.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/54672",
+      "http_status": 200
+    },
+    {
+      "id": "kant_pure_reason",
+      "period": "german_idealism",
+      "author": "Immanuel Kant",
+      "title": "Critique of Pure Reason",
+      "query": "kant critique pure reason",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 4280,
+      "matched_title": "The Critique of Pure Reason",
+      "matched_authors": [
+        "Kant, Immanuel"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/4280.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/4280",
+      "http_status": 200
+    },
+    {
+      "id": "kant_practical_reason",
+      "period": "german_idealism",
+      "author": "Immanuel Kant",
+      "title": "Critique of Practical Reason",
+      "query": "kant critique practical reason",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 5683,
+      "matched_title": "The Critique of Practical Reason",
+      "matched_authors": [
+        "Kant, Immanuel"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/5683.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/5683",
+      "http_status": 200
+    },
+    {
+      "id": "kant_groundwork",
+      "period": "german_idealism",
+      "author": "Immanuel Kant",
+      "title": "Groundwork of the Metaphysics of Morals",
+      "query": "kant groundwork metaphysics morals",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "kant_perpetual_peace",
+      "period": "german_idealism",
+      "author": "Immanuel Kant",
+      "title": "Perpetual Peace",
+      "query": "kant perpetual peace",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 50922,
+      "matched_title": "Perpetual Peace: A Philosophical Essay",
+      "matched_authors": [
+        "Kant, Immanuel"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/50922.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/50922",
+      "http_status": 200
+    },
+    {
+      "id": "fichte_vocation_man",
+      "period": "german_idealism",
+      "author": "Johann Gottlieb Fichte",
+      "title": "The Vocation of Man",
+      "query": "fichte vocation man",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "hegel_phenomenology",
+      "period": "german_idealism",
+      "author": "Georg Wilhelm Friedrich Hegel",
+      "title": "Phenomenology of Spirit",
+      "query": "hegel phenomenology spirit",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "hegel_history",
+      "period": "german_idealism",
+      "author": "Georg Wilhelm Friedrich Hegel",
+      "title": "The Philosophy of History",
+      "query": "hegel philosophy history",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 51635,
+      "matched_title": "Hegel's Lectures on the History of Philosophy: Volume 1 (of 3)",
+      "matched_authors": [
+        "Hegel, Georg Wilhelm Friedrich"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/51635.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/51635",
+      "http_status": 200
+    },
+    {
+      "id": "bentham_morals_legislation",
+      "period": "utilitarianism",
+      "author": "Jeremy Bentham",
+      "title": "An Introduction to the Principles of Morals and Legislation",
+      "query": "bentham principles morals legislation",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "mill_on_liberty",
+      "period": "utilitarianism",
+      "author": "John Stuart Mill",
+      "title": "On Liberty",
+      "query": "john stuart mill liberty",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 34901,
+      "matched_title": "On Liberty",
+      "matched_authors": [
+        "Mill, John Stuart"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/34901.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/34901",
+      "http_status": 200
+    },
+    {
+      "id": "mill_utilitarianism",
+      "period": "utilitarianism",
+      "author": "John Stuart Mill",
+      "title": "Utilitarianism",
+      "query": "john stuart mill utilitarianism",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 11224,
+      "matched_title": "Utilitarianism",
+      "matched_authors": [
+        "Mill, John Stuart"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/11224.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/11224",
+      "http_status": 200
+    },
+    {
+      "id": "mill_subjection_women",
+      "period": "utilitarianism",
+      "author": "John Stuart Mill",
+      "title": "The Subjection of Women",
+      "query": "john stuart mill subjection women",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 27083,
+      "matched_title": "The Subjection of Women",
+      "matched_authors": [
+        "Mill, John Stuart"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/27083.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/27083",
+      "http_status": 200
+    },
+    {
+      "id": "kierkegaard_fear_trembling",
+      "period": "existence",
+      "author": "Søren Kierkegaard",
+      "title": "Fear and Trembling",
+      "query": "kierkegaard fear trembling",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "kierkegaard_either_or",
+      "period": "existence",
+      "author": "Søren Kierkegaard",
+      "title": "Either/Or",
+      "query": "kierkegaard either or",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "nietzsche_beyond_good_evil",
+      "period": "existence",
+      "author": "Friedrich Nietzsche",
+      "title": "Beyond Good and Evil",
+      "query": "nietzsche beyond good evil",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 4363,
+      "matched_title": "Beyond Good and Evil",
+      "matched_authors": [
+        "Nietzsche, Friedrich Wilhelm"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/4363.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/4363",
+      "http_status": 200
+    },
+    {
+      "id": "nietzsche_zarathustra",
+      "period": "existence",
+      "author": "Friedrich Nietzsche",
+      "title": "Thus Spoke Zarathustra",
+      "query": "nietzsche zarathustra",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 0.667,
+      "gutendex_id": 1998,
+      "matched_title": "Thus Spake Zarathustra: A Book for All and None",
+      "matched_authors": [
+        "Nietzsche, Friedrich Wilhelm"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/1998.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/1998",
+      "http_status": 200
+    },
+    {
+      "id": "nietzsche_genealogy",
+      "period": "existence",
+      "author": "Friedrich Nietzsche",
+      "title": "On the Genealogy of Morals",
+      "query": "nietzsche genealogy morals",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 52319,
+      "matched_title": "The Genealogy of Morals: The Complete Works, Volume Thirteen, edited by Dr. Oscar Levy.",
+      "matched_authors": [
+        "Nietzsche, Friedrich Wilhelm"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/52319.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/52319",
+      "http_status": 200
+    },
+    {
+      "id": "nietzsche_gay_science",
+      "period": "existence",
+      "author": "Friedrich Nietzsche",
+      "title": "The Gay Science",
+      "query": "nietzsche gay science",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "marx_capital",
+      "period": "marxism",
+      "author": "Karl Marx",
+      "title": "Capital",
+      "query": "karl marx capital",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "marx_engels_manifesto",
+      "period": "marxism",
+      "author": "Karl Marx and Friedrich Engels",
+      "title": "Manifesto of the Communist Party",
+      "query": "marx engels communist manifesto",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 31193,
+      "matched_title": "Manifesto of the Communist Party",
+      "matched_authors": [
+        "Marx, Karl",
+        "Engels, Friedrich"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/31193.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/31193",
+      "http_status": 200
+    },
+    {
+      "id": "engels_socialism",
+      "period": "marxism",
+      "author": "Friedrich Engels",
+      "title": "Socialism Utopian and Scientific",
+      "query": "engels socialism utopian scientific",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 39257,
+      "matched_title": "Socialism, Utopian and Scientific",
+      "matched_authors": [
+        "Engels, Friedrich"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/39257.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/39257",
+      "http_status": 200
+    },
+    {
+      "id": "emerson_essays",
+      "period": "american_philosophy",
+      "author": "Ralph Waldo Emerson",
+      "title": "Essays",
+      "query": "ralph waldo emerson essays",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 16643,
+      "matched_title": "Essays by Ralph Waldo Emerson",
+      "matched_authors": [
+        "Emerson, Ralph Waldo"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/16643.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/16643",
+      "http_status": 200
+    },
+    {
+      "id": "thoreau_walden",
+      "period": "american_philosophy",
+      "author": "Henry David Thoreau",
+      "title": "Walden",
+      "query": "thoreau walden",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 205,
+      "matched_title": "Walden, and On The Duty Of Civil Disobedience",
+      "matched_authors": [
+        "Thoreau, Henry David"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/205.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/205",
+      "http_status": 200
+    },
+    {
+      "id": "thoreau_civil_disobedience",
+      "period": "american_philosophy",
+      "author": "Henry David Thoreau",
+      "title": "Civil Disobedience",
+      "query": "thoreau civil disobedience",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 205,
+      "matched_title": "Walden, and On The Duty Of Civil Disobedience",
+      "matched_authors": [
+        "Thoreau, Henry David"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/205.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/205",
+      "http_status": 200
+    },
+    {
+      "id": "james_pragmatism",
+      "period": "american_philosophy",
+      "author": "William James",
+      "title": "Pragmatism",
+      "query": "william james pragmatism",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 5116,
+      "matched_title": "Pragmatism: A New Name for Some Old Ways of Thinking",
+      "matched_authors": [
+        "James, William"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/5116.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/5116",
+      "http_status": 200
+    },
+    {
+      "id": "dewey_democracy_education",
+      "period": "american_philosophy",
+      "author": "John Dewey",
+      "title": "Democracy and Education",
+      "query": "john dewey democracy education",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 852,
+      "matched_title": "Democracy and Education: An Introduction to the Philosophy of Education",
+      "matched_authors": [
+        "Dewey, John"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/852.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/852",
+      "http_status": 200
+    },
+    {
+      "id": "russell_problems_philosophy",
+      "period": "analytic_philosophy",
+      "author": "Bertrand Russell",
+      "title": "The Problems of Philosophy",
+      "query": "bertrand russell problems philosophy",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 5827,
+      "matched_title": "The Problems of Philosophy",
+      "matched_authors": [
+        "Russell, Bertrand"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/5827.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/5827",
+      "http_status": 200
+    },
+    {
+      "id": "wittgenstein_tractatus",
+      "period": "analytic_philosophy",
+      "author": "Ludwig Wittgenstein",
+      "title": "Tractatus Logico-Philosophicus",
+      "query": "wittgenstein tractatus",
+      "status": "matched_without_plain_text",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 5740,
+      "matched_title": "Tractatus Logico-Philosophicus",
+      "matched_authors": [
+        "Wittgenstein, Ludwig"
+      ],
+      "languages": [
+        "de",
+        "en"
+      ],
+      "copyright": false,
+      "text_url": null,
+      "landing_page": "https://www.gutenberg.org/ebooks/5740",
+      "http_status": 200
+    },
+    {
+      "id": "wittgenstein_investigations",
+      "period": "analytic_philosophy",
+      "author": "Ludwig Wittgenstein",
+      "title": "Philosophical Investigations",
+      "query": "wittgenstein philosophical investigations",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "husserl_selected",
+      "period": "phenomenology",
+      "author": "Edmund Husserl",
+      "title": "Selected Works",
+      "query": "edmund husserl",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "heidegger_being_time",
+      "period": "phenomenology",
+      "author": "Martin Heidegger",
+      "title": "Being and Time",
+      "query": "heidegger being time",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "beauvoir_ethics_ambiguity",
+      "period": "existentialism",
+      "author": "Simone de Beauvoir",
+      "title": "The Ethics of Ambiguity",
+      "query": "beauvoir ethics ambiguity",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "sartre_existentialism_humanism",
+      "period": "existentialism",
+      "author": "Jean-Paul Sartre",
+      "title": "Existentialism Is a Humanism",
+      "query": "sartre existentialism humanism",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "sartre_being_nothingness",
+      "period": "existentialism",
+      "author": "Jean-Paul Sartre",
+      "title": "Being and Nothingness",
+      "query": "sartre being nothingness",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "camus_myth_sisyphus",
+      "period": "existentialism",
+      "author": "Albert Camus",
+      "title": "The Myth of Sisyphus",
+      "query": "camus myth sisyphus",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "wollstonecraft_rights_woman",
+      "period": "feminist_philosophy",
+      "author": "Mary Wollstonecraft",
+      "title": "A Vindication of the Rights of Woman",
+      "query": "wollstonecraft vindication rights woman",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 3420,
+      "matched_title": "A Vindication of the Rights of Woman: With Strictures on Political and Moral Subjects",
+      "matched_authors": [
+        "Wollstonecraft, Mary"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/3420.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/3420",
+      "http_status": 200
+    },
+    {
+      "id": "beauvoir_second_sex",
+      "period": "feminist_philosophy",
+      "author": "Simone de Beauvoir",
+      "title": "The Second Sex",
+      "query": "beauvoir second sex",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "tao_te_ching",
+      "period": "eastern_philosophy",
+      "author": "Laozi",
+      "title": "Tao Te Ching",
+      "query": "tao te ching",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "confucius_analects",
+      "period": "eastern_philosophy",
+      "author": "Confucius",
+      "title": "The Analects of Confucius",
+      "query": "confucius analects",
+      "status": "matched",
+      "candidate_count": 3,
+      "title_score": 1.0,
+      "gutendex_id": 3330,
+      "matched_title": "The Analects of Confucius (from the Chinese Classics)",
+      "matched_authors": [
+        "Confucius"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/3330.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/3330",
+      "http_status": 200
+    },
+    {
+      "id": "mencius",
+      "period": "eastern_philosophy",
+      "author": "Mencius",
+      "title": "Mencius",
+      "query": "mencius",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 10056,
+      "matched_title": "Chinese literature : $b Comprising the Analects of Confucius, the Sayings of Mencius, the Shi-King, the Travels of Fâ-Hien, and the Sorrows of Han",
+      "matched_authors": [
+        "Faxian",
+        "Confucius",
+        "Mencius"
+      ],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/10056.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/10056",
+      "http_status": 200
+    },
+    {
+      "id": "bhagavad_gita",
+      "period": "eastern_philosophy",
+      "author": "Anonymous",
+      "title": "Bhagavad Gita",
+      "query": "bhagavad gita",
+      "status": "not_found",
+      "candidate_count": 0,
+      "http_status": 200
+    },
+    {
+      "id": "upanishads",
+      "period": "eastern_philosophy",
+      "author": "Anonymous",
+      "title": "The Upanishads",
+      "query": "upanishads",
+      "status": "matched",
+      "candidate_count": 1,
+      "title_score": 1.0,
+      "gutendex_id": 3283,
+      "matched_title": "The Upanishads",
+      "matched_authors": [],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/3283.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/3283",
+      "http_status": 200
+    },
+    {
+      "id": "dhammapada",
+      "period": "eastern_philosophy",
+      "author": "Anonymous",
+      "title": "The Dhammapada",
+      "query": "dhammapada",
+      "status": "matched",
+      "candidate_count": 2,
+      "title_score": 1.0,
+      "gutendex_id": 2017,
+      "matched_title": "Dhammapada, a Collection of Verses; Being One of the Canonical Books of the Buddhists",
+      "matched_authors": [],
+      "languages": [
+        "en"
+      ],
+      "copyright": false,
+      "text_url": "https://www.gutenberg.org/ebooks/2017.txt.utf-8",
+      "landing_page": "https://www.gutenberg.org/ebooks/2017",
+      "http_status": 200
+    }
+  ]
+}

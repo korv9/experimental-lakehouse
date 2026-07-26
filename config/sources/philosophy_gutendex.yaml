@@ -24,7 +24,19 @@ pagination:
 
 request:
   params:
-    search: plato
+    languages: en
+
+selection:
+  type: corpus_report
+  # Resolved relative to this source configuration file.
+  report: ../../datasets/api_samples/philosophy_corpus_report.json
+  accepted_statuses:
+    - matched
+    - matched_without_plain_text
+  id_parameter: ids
+  # Gutendex returns at most 32 records per page. Keeping batches below that
+  # guarantees one complete response per approved ID batch.
+  batch_size: 25
 
 incremental:
   enabled: true
@@ -33,3 +45,4 @@ incremental:
 
 destination:
   bronze_table: bronze.philosophy_litterature_work_raw
+  contract: products.philosophy_litterature.tables.bronze.philosophy_litterature_work_raw.contract:TableDefinition

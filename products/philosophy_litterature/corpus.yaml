@@ -1,0 +1,108 @@
+corpus:
+  id: philosophy_foundations_v1
+  language: en
+  status: candidate
+  description: >
+    Candidate works for Gutendex discovery. A match is not a rights clearance;
+    editions, translations and regional copyright must be reviewed separately.
+
+works:
+  - {id: plato_republic, period: ancient_greece, author: Plato, title: Republic, query: "plato republic"}
+  - {id: plato_phaedo, period: ancient_greece, author: Plato, title: Phaedo, query: "plato phaedo"}
+  - {id: plato_symposium, period: ancient_greece, author: Plato, title: Symposium, query: "plato symposium"}
+  - {id: plato_apology, period: ancient_greece, author: Plato, title: Apology, query: "plato apology"}
+  - {id: aristotle_nicomachean_ethics, period: ancient_greece, author: Aristotle, title: Nicomachean Ethics, query: "aristotle nicomachean ethics"}
+  - {id: aristotle_politics, period: ancient_greece, author: Aristotle, title: Politics, query: "aristotle politics"}
+  - {id: aristotle_metaphysics, period: ancient_greece, author: Aristotle, title: Metaphysics, query: "aristotle metaphysics"}
+  - {id: aristotle_on_the_soul, period: ancient_greece, author: Aristotle, title: On the Soul, query: "aristotle soul"}
+
+  - {id: epicurus_letter_menoeceus, period: hellenism, author: Epicurus, title: Letter to Menoeceus, query: "epicurus menoeceus"}
+  - {id: epictetus_discourses, period: hellenism, author: Epictetus, title: Discourses, query: "epictetus discourses"}
+  - {id: epictetus_enchiridion, period: hellenism, author: Epictetus, title: Enchiridion, query: "epictetus enchiridion"}
+  - {id: marcus_aurelius_meditations, period: hellenism, author: Marcus Aurelius, title: Meditations, query: "marcus aurelius meditations"}
+  - {id: seneca_letters_stoic, period: hellenism, author: Seneca, title: Letters from a Stoic, query: "seneca moral letters lucilius", title_aliases: [Moral Letters to Lucilius]}
+
+  - {id: cicero_on_duties, period: rome, author: Cicero, title: On Duties, query: "cicero duties"}
+  - {id: cicero_on_republic, period: rome, author: Cicero, title: On the Republic, query: "cicero republic", title_aliases: [De Re Publica]}
+  - {id: lucretius_nature_things, period: rome, author: Lucretius, title: On the Nature of Things, query: "lucretius nature things"}
+
+  - {id: augustine_confessions, period: medieval_religion, author: Augustine, title: Confessions, query: "augustine confessions"}
+  - {id: augustine_city_god, period: medieval_religion, author: Augustine, title: City of God, query: "augustine city god"}
+  - {id: boethius_consolation, period: medieval_religion, author: Boethius, title: The Consolation of Philosophy, query: "boethius consolation philosophy"}
+  - {id: aquinas_summa, period: medieval_religion, author: Thomas Aquinas, title: Summa Theologica, query: "aquinas summa theologica"}
+  - {id: anselm_proslogion, period: medieval_religion, author: Anselm, title: Proslogion, query: "anselm proslogion"}
+
+  - {id: machiavelli_prince, period: renaissance, author: Niccolò Machiavelli, title: The Prince, query: "machiavelli prince"}
+  - {id: more_utopia, period: renaissance, author: Thomas More, title: Utopia, query: "thomas more utopia"}
+  - {id: erasmus_praise_folly, period: renaissance, author: Erasmus, title: The Praise of Folly, query: "erasmus praise folly"}
+
+  - {id: descartes_meditations, period: rationalism, author: René Descartes, title: Meditations, query: "descartes meditations"}
+  - {id: descartes_discourse_method, period: rationalism, author: René Descartes, title: Discourse on Method, query: "descartes discourse method"}
+  - {id: spinoza_ethics, period: rationalism, author: Baruch Spinoza, title: Ethics, query: "spinoza ethics"}
+  - {id: leibniz_monadology, period: rationalism, author: Gottfried Wilhelm Leibniz, title: Monadology, query: "leibniz monadology"}
+
+  - {id: bacon_novum_organum, period: empiricism, author: Francis Bacon, title: Novum Organum, query: "francis bacon novum organum"}
+  - {id: hobbes_leviathan, period: empiricism, author: Thomas Hobbes, title: Leviathan, query: "hobbes leviathan"}
+  - {id: locke_human_understanding, period: empiricism, author: John Locke, title: An Essay Concerning Human Understanding, query: "locke essay human understanding"}
+  - {id: locke_two_treatises, period: empiricism, author: John Locke, title: Two Treatises of Government, query: "locke two treatises government"}
+  - {id: berkeley_human_knowledge, period: empiricism, author: George Berkeley, title: A Treatise Concerning the Principles of Human Knowledge, query: "berkeley principles human knowledge"}
+  - {id: hume_human_nature, period: empiricism, author: David Hume, title: A Treatise of Human Nature, query: "hume treatise human nature"}
+  - {id: hume_human_understanding, period: empiricism, author: David Hume, title: An Enquiry Concerning Human Understanding, query: "hume enquiry human understanding"}
+
+  - {id: rousseau_social_contract, period: enlightenment, author: Jean-Jacques Rousseau, title: The Social Contract, query: "rousseau social contract"}
+  - {id: rousseau_inequality, period: enlightenment, author: Jean-Jacques Rousseau, title: Discourse on Inequality, query: "rousseau discourse inequality"}
+  - {id: voltaire_candide, period: enlightenment, author: Voltaire, title: Candide, query: "voltaire candide"}
+  - {id: montesquieu_spirit_laws, period: enlightenment, author: Montesquieu, title: The Spirit of Laws, query: "montesquieu spirit laws"}
+  - {id: diderot_selected, period: enlightenment, author: Denis Diderot, title: Selected Writings, query: "diderot"}
+
+  - {id: kant_pure_reason, period: german_idealism, author: Immanuel Kant, title: Critique of Pure Reason, query: "kant critique pure reason"}
+  - {id: kant_practical_reason, period: german_idealism, author: Immanuel Kant, title: Critique of Practical Reason, query: "kant critique practical reason"}
+  - {id: kant_groundwork, period: german_idealism, author: Immanuel Kant, title: Groundwork of the Metaphysics of Morals, query: "kant groundwork metaphysics morals"}
+  - {id: kant_perpetual_peace, period: german_idealism, author: Immanuel Kant, title: Perpetual Peace, query: "kant perpetual peace"}
+  - {id: fichte_vocation_man, period: german_idealism, author: Johann Gottlieb Fichte, title: The Vocation of Man, query: "fichte vocation man"}
+  - {id: hegel_phenomenology, period: german_idealism, author: Georg Wilhelm Friedrich Hegel, title: Phenomenology of Spirit, query: "hegel phenomenology spirit"}
+  - {id: hegel_history, period: german_idealism, author: Georg Wilhelm Friedrich Hegel, title: The Philosophy of History, query: "hegel philosophy history"}
+
+  - {id: bentham_morals_legislation, period: utilitarianism, author: Jeremy Bentham, title: An Introduction to the Principles of Morals and Legislation, query: "bentham principles morals legislation"}
+  - {id: mill_on_liberty, period: utilitarianism, author: John Stuart Mill, title: On Liberty, query: "john stuart mill liberty"}
+  - {id: mill_utilitarianism, period: utilitarianism, author: John Stuart Mill, title: Utilitarianism, query: "john stuart mill utilitarianism"}
+  - {id: mill_subjection_women, period: utilitarianism, author: John Stuart Mill, title: The Subjection of Women, query: "john stuart mill subjection women"}
+
+  - {id: kierkegaard_fear_trembling, period: existence, author: Søren Kierkegaard, title: Fear and Trembling, query: "kierkegaard fear trembling"}
+  - {id: kierkegaard_either_or, period: existence, author: Søren Kierkegaard, title: Either/Or, query: "kierkegaard either or"}
+  - {id: nietzsche_beyond_good_evil, period: existence, author: Friedrich Nietzsche, title: Beyond Good and Evil, query: "nietzsche beyond good evil"}
+  - {id: nietzsche_zarathustra, period: existence, author: Friedrich Nietzsche, title: Thus Spoke Zarathustra, query: "nietzsche zarathustra"}
+  - {id: nietzsche_genealogy, period: existence, author: Friedrich Nietzsche, title: On the Genealogy of Morals, query: "nietzsche genealogy morals"}
+  - {id: nietzsche_gay_science, period: existence, author: Friedrich Nietzsche, title: The Gay Science, query: "nietzsche gay science"}
+
+  - {id: marx_capital, period: marxism, author: Karl Marx, title: Capital, query: "karl marx capital"}
+  - {id: marx_engels_manifesto, period: marxism, author: Karl Marx and Friedrich Engels, title: Manifesto of the Communist Party, query: "marx engels communist manifesto"}
+  - {id: engels_socialism, period: marxism, author: Friedrich Engels, title: Socialism Utopian and Scientific, query: "engels socialism utopian scientific"}
+
+  - {id: emerson_essays, period: american_philosophy, author: Ralph Waldo Emerson, title: Essays, query: "ralph waldo emerson essays"}
+  - {id: thoreau_walden, period: american_philosophy, author: Henry David Thoreau, title: Walden, query: "thoreau walden"}
+  - {id: thoreau_civil_disobedience, period: american_philosophy, author: Henry David Thoreau, title: Civil Disobedience, query: "thoreau civil disobedience"}
+  - {id: james_pragmatism, period: american_philosophy, author: William James, title: Pragmatism, query: "william james pragmatism"}
+  - {id: dewey_democracy_education, period: american_philosophy, author: John Dewey, title: Democracy and Education, query: "john dewey democracy education"}
+
+  - {id: russell_problems_philosophy, period: analytic_philosophy, author: Bertrand Russell, title: The Problems of Philosophy, query: "bertrand russell problems philosophy"}
+  - {id: wittgenstein_tractatus, period: analytic_philosophy, author: Ludwig Wittgenstein, title: Tractatus Logico-Philosophicus, query: "wittgenstein tractatus"}
+  - {id: wittgenstein_investigations, period: analytic_philosophy, author: Ludwig Wittgenstein, title: Philosophical Investigations, query: "wittgenstein philosophical investigations"}
+
+  - {id: husserl_selected, period: phenomenology, author: Edmund Husserl, title: Selected Works, query: "edmund husserl"}
+  - {id: heidegger_being_time, period: phenomenology, author: Martin Heidegger, title: Being and Time, query: "heidegger being time"}
+
+  - {id: beauvoir_ethics_ambiguity, period: existentialism, author: Simone de Beauvoir, title: The Ethics of Ambiguity, query: "beauvoir ethics ambiguity"}
+  - {id: sartre_existentialism_humanism, period: existentialism, author: Jean-Paul Sartre, title: Existentialism Is a Humanism, query: "sartre existentialism humanism"}
+  - {id: sartre_being_nothingness, period: existentialism, author: Jean-Paul Sartre, title: Being and Nothingness, query: "sartre being nothingness"}
+  - {id: camus_myth_sisyphus, period: existentialism, author: Albert Camus, title: The Myth of Sisyphus, query: "camus myth sisyphus"}
+
+  - {id: wollstonecraft_rights_woman, period: feminist_philosophy, author: Mary Wollstonecraft, title: A Vindication of the Rights of Woman, query: "wollstonecraft vindication rights woman"}
+  - {id: beauvoir_second_sex, period: feminist_philosophy, author: Simone de Beauvoir, title: The Second Sex, query: "beauvoir second sex"}
+
+  - {id: tao_te_ching, period: eastern_philosophy, author: Laozi, title: Tao Te Ching, query: "tao te ching"}
+  - {id: confucius_analects, period: eastern_philosophy, author: Confucius, title: The Analects of Confucius, query: "confucius analects"}
+  - {id: mencius, period: eastern_philosophy, author: Mencius, title: Mencius, query: "mencius"}
+  - {id: bhagavad_gita, period: eastern_philosophy, author: Anonymous, title: Bhagavad Gita, query: "bhagavad gita"}
+  - {id: upanishads, period: eastern_philosophy, author: Anonymous, title: The Upanishads, query: "upanishads"}
+  - {id: dhammapada, period: eastern_philosophy, author: Anonymous, title: The Dhammapada, query: "dhammapada"}

@@ -317,10 +317,14 @@ catalog, then run with `create_catalog=false`.
 
 The file is safe to rerun: DDL uses `IF NOT EXISTS`, the temporary file probe is
 removed, and each audit probe receives a new run ID. It deliberately does not
-start the unfinished Philosophy ingestion. After the summary is green, review
-[`IDEAS.md`](IDEAS.md) and
-[`products/philosophy_litterature/product.yaml`](products/philosophy_litterature/product.yaml)
-before enabling that product.
+start any product ingestion.
+
+After the summary is green, the Philosophy metadata job can be run from
+[`notebooks/products/philosophy_litterature/ingest_metadata_to_bronze.py`](notebooks/products/philosophy_litterature/ingest_metadata_to_bronze.py).
+It reads the reviewed corpus report, requests 53 unique Gutenberg IDs in
+bounded batches, validates the product-owned Bronze contract and writes to
+`dev_lakehouse.bronze.philosophy_litterature_work_raw`. Configure it as a
+Databricks Workflow notebook task with a `catalog` parameter when scheduling.
 
 ## Unity Catalog storage model
 
