@@ -45,6 +45,7 @@ packages = [
     "lakehouse_platform.tools",
     "products",
     "products.philosophy_litterature",
+    "products.philosophy_litterature.notebooks",
     "products.philosophy_litterature.tables",
     "products.philosophy_litterature.tables.bronze",
     "products.philosophy_litterature.tables.bronze.gutenberg_catalog_raw",

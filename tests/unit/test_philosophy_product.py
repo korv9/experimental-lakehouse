@@ -42,13 +42,7 @@ def test_gutenberg_catalog_source_uses_official_feed_and_uc_targets():
     )
     assert source["file"]["compression"] == "gzip"
     assert source["file"]["landing_source"] == "gutenberg"
-    assert source["destination"]["bronze_table"] == (
-        "bronze.gutenberg_catalog_raw"
-    )
-    assert source["destination"]["silver_catalog_table"] == "silver.gutenberg_work"
-    assert source["destination"]["silver_product_table"] == (
-        "silver.philosophy_litterature_work"
-    )
+    assert "destination" not in source
 
 
 def test_candidate_corpus_is_product_owned_and_unique():

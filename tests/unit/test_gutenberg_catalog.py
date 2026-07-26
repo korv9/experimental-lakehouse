@@ -7,6 +7,7 @@ from datetime import date
 import pytest
 
 from lakehouse_platform.ingestion.catalog_files import (
+    GzipCsvSource,
     validate_gzip_csv,
     write_artifact_manifest,
 )
@@ -28,6 +29,15 @@ def test_compressed_catalog_validation_reads_header_and_entire_stream(tmp_path):
 
     assert header[0] == "Text#"
     assert header[-1] == "Bookshelves"
+
+
+def test_gutenberg_source_config_loads_as_typed_file_source():
+    source = GzipCsvSource.from_yaml("config/sources/gutenberg_catalog.yaml")
+
+    assert source.name == "project_gutenberg_catalog"
+    assert source.file_name == "pg_catalog.csv.gz"
+    assert source.required_columns[0] == "Text#"
+    assert source.headers["Accept"] == "application/octet-stream"
 
 
 def test_compressed_catalog_validation_rejects_schema_drift(tmp_path):
