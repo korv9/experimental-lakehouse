@@ -1,4 +1,6 @@
-# Live-verified 2026-07-25 with lakehouse-api.
+# Exploration profiles only; production source configuration lives in config/sources/.
+# Live-verified locally 2026-07-25 with lakehouse-api. Public Gutendex challenges
+# Databricks compute and is intentionally not a production dependency.
 # Replace this User-Agent with a project name and contact before scheduled ingestion.
 x-default-headers: &default_headers
   User-Agent: AtlasOfHumanThought/0.1 (educational portfolio)

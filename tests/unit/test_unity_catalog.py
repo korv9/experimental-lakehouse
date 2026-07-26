@@ -9,15 +9,15 @@ from lakehouse_platform.metadata.unity_catalog import (
 def test_layout_builds_three_part_names_and_governed_volume_paths():
     layout = UnityCatalogLayout("dev_lakehouse")
 
-    assert layout.table("bronze", "philosophy_litterature_work_raw") == (
-        "dev_lakehouse.bronze.philosophy_litterature_work_raw"
+    assert layout.table("bronze", "gutenberg_catalog_raw") == (
+        "dev_lakehouse.bronze.gutenberg_catalog_raw"
     )
     assert layout.source_path("philosophy_litterature", "gutenberg", "1497.txt") == (
         "/Volumes/dev_lakehouse/landing/source_files/"
         "philosophy_litterature/gutenberg/1497.txt"
     )
-    assert layout.checkpoint_path("philosophy_litterature", "gutendex") == (
-        "/Volumes/dev_lakehouse/platform/checkpoints/philosophy_litterature/gutendex"
+    assert layout.checkpoint_path("philosophy_litterature", "gutenberg") == (
+        "/Volumes/dev_lakehouse/platform/checkpoints/philosophy_litterature/gutenberg"
     )
 
 

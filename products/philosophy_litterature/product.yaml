@@ -16,6 +16,7 @@ scope:
 
 sources:
   discovery: [gutendex]
+  metadata: [project_gutenberg_catalog]
   full_text: [project_gutenberg, wikisource]
   bibliography: [open_library, libris]
   enrichment: [wikidata]
@@ -29,7 +30,8 @@ unity_catalog:
     - ${catalog}.platform.ingestion_checkpoints
     - ${catalog}.platform.download_manifest
   planned_tables:
-    - ${catalog}.bronze.philosophy_litterature_work_raw
+    - ${catalog}.bronze.gutenberg_catalog_raw
+    - ${catalog}.silver.gutenberg_work
     - ${catalog}.bronze.philosophy_litterature_text_manifest
     - ${catalog}.silver.philosophy_litterature_work
     - ${catalog}.silver.philosophy_litterature_text_version

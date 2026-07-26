@@ -122,6 +122,47 @@ def set_watermark(spark: SparkSession, catalog: str, source_name: str,
     """)
 
 
+def record_download(
+    spark: SparkSession,
+    catalog: str,
+    *,
+    source_name: str,
+    source_record_id: str,
+    source_url: str,
+    volume_path: str,
+    sha256: str,
+    size_bytes: int,
+    source_etag: str | None,
+    status: str,
+    run_id: str,
+) -> None:
+    """Append an immutable file-level lineage record to the download manifest."""
+    values = {
+        key: _sql_string(value)
+        for key, value in {
+            "source_name": source_name,
+            "source_record_id": source_record_id,
+            "source_url": source_url,
+            "volume_path": volume_path,
+            "sha256": sha256,
+            "source_etag": source_etag,
+            "status": status,
+            "run_id": run_id,
+        }.items()
+    }
+    spark.sql(f"""
+        INSERT INTO {catalog}.platform.download_manifest (
+            source_name, source_record_id, source_url, volume_path, sha256,
+            size_bytes, source_etag, downloaded_at, status, run_id
+        ) VALUES (
+            {values["source_name"]}, {values["source_record_id"]},
+            {values["source_url"]}, {values["volume_path"]}, {values["sha256"]},
+            {int(size_bytes)}, {values["source_etag"]}, current_timestamp(),
+            {values["status"]}, {values["run_id"]}
+        )
+    """)
+
+
 def get_checkpoint(
     spark: SparkSession,
     catalog: str,

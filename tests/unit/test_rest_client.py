@@ -72,3 +72,37 @@ def test_rest_client_does_not_retry_non_transient_error():
         assert error.response.status_code == 404
     else:
         raise AssertionError("Expected an HTTPError")
+
+
+def test_rest_client_sends_configured_default_headers():
+    session = Session([Response(200, {"results": []})])
+    client = RestClient(
+        "https://api.example.test",
+        session=session,
+        default_headers={"Accept": "application/json", "User-Agent": "lakehouse-test/1"},
+    )
+
+    client.get("/works")
+
+    assert session.calls[0][1]["headers"] == {
+        "Accept": "application/json",
+        "User-Agent": "lakehouse-test/1",
+    }
+
+
+def test_rest_client_explains_forbidden_response():
+    response = Response(403)
+    response.text = "request blocked"
+    client = RestClient(
+        "https://api.example.test",
+        session=Session([response]),
+    )
+
+    try:
+        client.get("/works")
+    except requests.HTTPError as error:
+        assert "compute egress IP" in str(error)
+        assert "request blocked" in str(error)
+        assert error.response is response
+    else:
+        raise AssertionError("Expected an HTTPError")

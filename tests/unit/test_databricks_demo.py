@@ -93,9 +93,9 @@ def test_full_demo_runs_steps_in_order_without_starting_product_ingestion(
         return "run-123"
 
     def api(report):
-        calls.append(("api_smoke", report.catalog))
-        report.api_status = 200
-        report.api_result_count = 4
+        calls.append(("source_smoke", report.catalog))
+        report.source_status = 200
+        report.source_content_length = 5_557_020
 
     monkeypatch.setattr(databricks_demo, "_runtime_report", runtime)
     monkeypatch.setattr(databricks_demo, "create_unity_catalog_objects", create_uc)
@@ -103,7 +103,7 @@ def test_full_demo_runs_steps_in_order_without_starting_product_ingestion(
     monkeypatch.setattr(databricks_demo, "_inspect_unity_catalog", inspect)
     monkeypatch.setattr(databricks_demo, "_volume_probe", volume)
     monkeypatch.setattr(databricks_demo, "_control_table_probe", control)
-    monkeypatch.setattr(databricks_demo, "_api_smoke", api)
+    monkeypatch.setattr(databricks_demo, "_source_smoke", api)
 
     report = databricks_demo.run_databricks_demo(
         object(),
@@ -117,7 +117,7 @@ def test_full_demo_runs_steps_in_order_without_starting_product_ingestion(
         ("inventory", "portfolio"),
         ("volume_probe", "portfolio"),
         ("control_probe", "portfolio"),
-        ("api_smoke", "portfolio"),
+        ("source_smoke", "portfolio"),
     ]
     assert asdict(report)["control_run_id"] == "run-123"
     output = capsys.readouterr().out
@@ -161,13 +161,12 @@ def test_demo_can_skip_mutating_volume_probe_and_external_api(monkeypatch, capsy
         DatabricksDemoOptions(
             catalog=layout.catalog,
             run_volume_probe=False,
-            run_api_smoke=False,
+            run_source_smoke=False,
         ),
     )
 
     assert returned.volume_probe_sha256 is None
-    assert returned.api_status is None
+    assert returned.source_status is None
     output = capsys.readouterr().out
     assert "[SKIP] Volume write probe disabled." in output
-    assert "[SKIP] Gutendex API smoke test disabled." in output
-
+    assert "[SKIP] Gutenberg catalog source smoke test disabled." in output

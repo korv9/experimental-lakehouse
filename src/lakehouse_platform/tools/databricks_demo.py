@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import requests
+
 from lakehouse_platform.metadata.unity_catalog import (
     UnityCatalogLayout,
     create_unity_catalog_objects,
@@ -19,7 +21,7 @@ class DatabricksDemoOptions:
     catalog: str = "dev_lakehouse"
     create_catalog: bool = True
     run_volume_probe: bool = True
-    run_api_smoke: bool = True
+    run_source_smoke: bool = True
 
 
 @dataclass
@@ -32,8 +34,8 @@ class DatabricksDemoReport:
     control_tables: list[str] = field(default_factory=list)
     volume_probe_sha256: str | None = None
     control_run_id: str | None = None
-    api_status: int | None = None
-    api_result_count: int | None = None
+    source_status: int | None = None
+    source_content_length: int | None = None
     warnings: list[str] = field(default_factory=list)
 
 
@@ -221,45 +223,42 @@ def _create_control_tables(spark: Any, catalog: str) -> None:
     create_platform_tables(spark, catalog)
 
 
-def _api_smoke(report: DatabricksDemoReport) -> None:
+def _source_smoke(report: DatabricksDemoReport) -> None:
     try:
-        # Keep API-only dependencies optional for the Unity Catalog bootstrap.
-        from lakehouse_platform.tools.api_explorer import ApiRequest, execute_request
-
-        request = ApiRequest(
-            name="gutendex_plato_smoke",
-            url="https://gutendex.com/books/",
-            params={"search": "plato"},
-            headers={"User-Agent": "AtlasOfHumanThought/0.1 (Databricks bootstrap)"},
+        url = "https://www.gutenberg.org/cache/epub/feeds/pg_catalog.csv.gz"
+        response = requests.get(
+            url,
+            headers={
+                "Accept": "application/octet-stream",
+                "User-Agent": (
+                    "experimental-lakehouse/0.1 "
+                    "(+https://github.com/korv9/experimental-lakehouse)"
+                ),
+            },
             timeout=30,
+            stream=True,
         )
-        response = execute_request(request)
-        report.api_status = response.status_code
-        if not response.ok or not isinstance(response.body, dict):
-            raise RuntimeError(
-                f"Gutendex returned status={response.status_code} "
-                f"body_type={type(response.body).__name__}"
+        try:
+            report.source_status = response.status_code
+            report.source_content_length = int(response.headers.get("Content-Length", 0))
+            response.raise_for_status()
+            if response.headers.get("cf-mitigated") == "challenge":
+                raise RuntimeError("Project Gutenberg returned a Cloudflare challenge")
+            progress(
+                "DATABRICKS",
+                "Official catalog feed access verified",
+                status=response.status_code,
+                bytes=report.source_content_length,
             )
-        report.api_result_count = int(response.body.get("count", 0))
-        samples = [
-            item.get("title")
-            for item in response.body.get("results", [])[:3]
-            if isinstance(item, dict)
-        ]
-        progress(
-            "DATABRICKS",
-            "External API access verified",
-            status=response.status_code,
-            result_count=report.api_result_count,
-            sample_titles=samples,
-        )
-    except (ImportError, OSError, ValueError, RuntimeError) as error:
+        finally:
+            response.close()
+    except (OSError, ValueError, RuntimeError, requests.RequestException) as error:
         warning = (
-            "Gutendex smoke test failed. Unity Catalog setup is still usable, "
+            "Official Gutenberg catalog smoke test failed. Unity Catalog is still usable, "
             f"but the compute may lack internet egress: {error}"
         )
         report.warnings.append(warning)
-        progress("DATABRICKS", "API smoke test warning", error=str(error))
+        progress("DATABRICKS", "Source feed smoke test warning", error=str(error))
 
 
 def _summary(report: DatabricksDemoReport, layout: UnityCatalogLayout) -> None:
@@ -274,10 +273,10 @@ def _summary(report: DatabricksDemoReport, layout: UnityCatalogLayout) -> None:
         print(f"  [OK] Volume read/write:   {report.volume_probe_sha256[:16]}...")
     if report.control_run_id:
         print(f"  [OK] Delta audit run:     {report.control_run_id}")
-    if report.api_status:
+    if report.source_status:
         print(
-            f"  [OK] Gutendex API:        HTTP {report.api_status}, "
-            f"{report.api_result_count} matching works"
+            f"  [OK] Gutenberg catalog:   HTTP {report.source_status}, "
+            f"{report.source_content_length} bytes"
         )
     for warning in report.warnings:
         print(f"  [WARN] {warning}")
@@ -309,7 +308,7 @@ def run_databricks_demo(
         f"catalog={options.catalog}, "
         f"create_catalog={options.create_catalog}, "
         f"run_volume_probe={options.run_volume_probe}, "
-        f"run_api_smoke={options.run_api_smoke}"
+        f"run_source_smoke={options.run_source_smoke}"
     )
 
     _heading(1, "RUNTIME AND IDENTITY")
@@ -347,11 +346,11 @@ def run_databricks_demo(
         print("[SKIP] Volume write probe disabled.")
     report.control_run_id = _control_table_probe(spark, options.catalog)
 
-    _heading(6, "EXTERNAL API CONNECTIVITY")
-    if options.run_api_smoke:
-        _api_smoke(report)
+    _heading(6, "OFFICIAL SOURCE FEED CONNECTIVITY")
+    if options.run_source_smoke:
+        _source_smoke(report)
     else:
-        print("[SKIP] Gutendex API smoke test disabled.")
+        print("[SKIP] Gutenberg catalog source smoke test disabled.")
 
     _summary(report, layout)
     return report

@@ -300,7 +300,7 @@ The demo prints every stage while it:
 4. inventories every expected Unity Catalog object;
 5. verifies a temporary Volume file with SHA-256 and removes it;
 6. records and completes a real row in `platform.pipeline_runs`; and
-7. optionally tests outbound API access against Gutendex.
+7. optionally tests the official compressed Gutenberg catalog feed.
 
 Use the notebook widgets at the top of the run:
 
@@ -309,7 +309,7 @@ Use the notebook widgets at the top of the run:
 | `catalog` | `dev_lakehouse` | Unity Catalog catalog used by the demo |
 | `create_catalog` | `true` | Set to `false` when an administrator created it |
 | `run_volume_probe` | `true` | Test governed file write/read/delete access |
-| `run_api_smoke` | `true` | Test internet egress without blocking UC setup |
+| `run_source_smoke` | `true` | Test access to the official catalog feed without downloading it |
 
 The setup identity needs permission to create the requested objects. In a
 managed environment, ask an administrator to create and grant access to the
@@ -319,17 +319,33 @@ The file is safe to rerun: DDL uses `IF NOT EXISTS`, the temporary file probe is
 removed, and each audit probe receives a new run ID. It deliberately does not
 start any product ingestion.
 
-After the summary is green, the Philosophy metadata job can be run from
-[`notebooks/products/philosophy_litterature/ingest_metadata_to_bronze.py`](notebooks/products/philosophy_litterature/ingest_metadata_to_bronze.py).
-It reads the reviewed corpus report, requests 53 unique Gutenberg IDs in
-bounded batches, validates the product-owned Bronze contract and writes to
-`dev_lakehouse.bronze.philosophy_litterature_work_raw`. Configure it as a
-Databricks Workflow notebook task with a `catalog` parameter when scheduling.
+After the summary is green, configure one Databricks Workflow with three
+dependent notebook tasks:
+
+1. [`01_ingest_gutenberg_catalog.py`](notebooks/products/philosophy_litterature/01_ingest_gutenberg_catalog.py)
+   downloads the official `pg_catalog.csv.gz` feed atomically, validates gzip
+   and CSV structure, records SHA-256 lineage and merges source-faithful rows
+   into `bronze.gutenberg_catalog_raw`.
+2. [`02_normalize_gutenberg_catalog.py`](notebooks/products/philosophy_litterature/02_normalize_gutenberg_catalog.py)
+   produces one current normalized row per Gutenberg ID in
+   `silver.gutenberg_work`.
+3. [`03_select_philosophy_corpus.py`](notebooks/products/philosophy_litterature/03_select_philosophy_corpus.py)
+   joins the reviewed corpus intent to official metadata and writes
+   `silver.philosophy_litterature_work`.
+
+All tasks accept `catalog` (default `dev_lakehouse`). Task 1 also accepts an
+optional ISO `snapshot_date`; an empty value uses the current UTC date. The
+compressed source is only about 5–6 MB, so preserving the complete catalog
+makes future Gutenberg products reusable without additional source calls.
+
+Gutendex remains available through `api_tester.py` for local discovery and
+human review. It is deliberately not a scheduled production dependency because
+its public Cloudflare-protected endpoint challenges Databricks compute.
 
 ## Unity Catalog storage model
 
 Tabular data and operational state use three-part Unity Catalog names such as
-`dev_lakehouse.bronze.philosophy_litterature_work_raw`. Non-tabular source files and
+`dev_lakehouse.bronze.gutenberg_catalog_raw`. Non-tabular source files and
 checkpoints use governed managed volumes:
 
 ```text
