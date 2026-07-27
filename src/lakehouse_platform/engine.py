@@ -70,8 +70,24 @@ def run_pipeline(
     written = []
     for spec in config.outputs:
         options = resolve_values(spec.options, variables)
+        frame = frames[spec.input_id]
+        if spec.contract:
+            # Governance: refuse to publish a table that drifted from its contract.
+            contract = import_callable(spec.contract)
+            progress(
+                "SCHEMA",
+                "Validating output contract",
+                id=spec.id,
+                contract=contract.object_location(),
+            )
+            try:
+                contract.validate(frame)
+            except Exception as error:
+                progress("SCHEMA", "Contract validation failed", id=spec.id, error=str(error))
+                raise
+            progress("SCHEMA", "Output contract passed", id=spec.id)
         progress("OUTPUT", "Writing target", id=spec.id, table=options["table"])
-        write_output(spark, frames[spec.input_id], spec.kind, options)
+        write_output(spark, frame, spec.kind, options)
         written.append(options["table"])
 
     for spec in config.post_actions:

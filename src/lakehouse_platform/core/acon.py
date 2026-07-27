@@ -26,6 +26,7 @@ class Spec:
     kind: str
     input_id: str | None = None
     callable: str | None = None
+    contract: str | None = None
     options: dict[str, Any] = field(default_factory=dict)
 
 
@@ -77,6 +78,7 @@ class Acon:
                         kind=raw.get("reader") or raw.get("writer") or section.rstrip("s"),
                         input_id=raw.get("input_id"),
                         callable=raw.get("callable"),
+                        contract=raw.get("contract"),
                         options=raw.get("options") or {},
                     )
                 )

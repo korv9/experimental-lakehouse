@@ -139,6 +139,7 @@ outputs:
   - id: silver_records
     input_id: validated_records
     writer: delta_merge
+    contract: products.messy_records.tables.silver.records.contract:TableDefinition
     options:
       table: ${catalog}.silver.records
       keys: [record_id]
@@ -150,6 +151,12 @@ The checked-in implementation is
 [`products/messy_records/pipelines/bronze_to_silver.yaml`](products/messy_records/pipelines/bronze_to_silver.yaml).
 The typed loader rejects missing IDs, duplicate IDs, broken references and
 transformations without a callable.
+
+`contract:` is optional per output. When present the engine validates the frame
+against that `TableDefinition` — exact columns and types, no nulls in required
+columns, unique primary key — and refuses to write when the result has drifted.
+It is the declarative equivalent of the contract check `process_job` performs in
+its imperative form, so both paths publish under the same guarantee.
 
 ## Transformation model
 

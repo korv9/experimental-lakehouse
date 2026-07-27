@@ -1,40 +1,44 @@
+"""Governed contract for the raw messy demo landing table.
+
+Bronze keeps every source record verbatim in ``raw_payload`` plus ingestion
+metadata, append-only, so Silver can always be rebuilt without calling the
+source again. There is no primary key: raw ids may be null or duplicated —
+that is exactly the mess this product exists to demonstrate.
+"""
 from dataclasses import dataclass
 from datetime import datetime
 
 from lakehouse_platform.schemas.base import BaseSchema
-from lakehouse_platform.schemas.types import String
+from lakehouse_platform.schemas.types import Int, String
 
 
 @dataclass
 class TableDefinition(BaseSchema):
-    # bronze = raw source payload + ingestion metadata. No surrogate keys here;
-    # ids can be null or duplicated in raw data, so there is no PK.
-    bk_record_id: String | None
-    raw_payload: String
     source_name: String
-    source_endpoint: String | None
+    source_endpoint: String
+    ingested_at: datetime
     batch_id: String
-    schema_version: String | None
-    dp_ingestion_ts: datetime
-    dp_refresh_ts: datetime
+    request_parameters: String
+    http_status: Int
+    source_record_id: String | None
+    raw_payload: String
+    schema_version: String
 
     class Meta:
-        object_name = "records"
-        object_location = "bronze.messy.records"
+        object_name = "messy_demo_records"
+        object_location = "bronze.messy_demo_records"
         object_description = (
             "Raw landing for the messy demo source. One row per ingested source "
-            "record, append-only. Full record preserved verbatim in raw_payload; "
-            "silver parses and types it. No surrogate keys in bronze."
+            "record, append-only. Full record preserved verbatim in raw_payload."
         )
-        column_constraints = {}  # no PK: raw ids may be null/duplicated
+        column_constraints = {}  # no PK: raw ids may be null or duplicated
         custom_table_properties = {"delta.appendOnly": "true"}
         column_comments = {
-            "bk_record_id": "BK — source record id, extracted from raw_payload (may be null).",
-            "raw_payload": "Full source record as received (JSON), unparsed.",
-            "source_name": "Source system identifier.",
-            "source_endpoint": "API endpoint / path the record came from.",
-            "batch_id": "Ingestion batch identifier.",
-            "schema_version": "Detected/assigned source schema version.",
-            "dp_ingestion_ts": "When the row was first landed in bronze.",
-            "dp_refresh_ts": "When the row was last written by the platform.",
+            "raw_payload": "Complete source record preserved as JSON.",
+            "source_record_id": "Source id as received; may be null in this feed.",
+            "batch_id": "Identifier of the ingestion batch.",
+            "ingested_at": "UTC timestamp when the source record landed.",
         }
+
+
+TABLE = TableDefinition.Meta.object_location

@@ -1,21 +1,26 @@
+"""Governed contract for ``silver.records`` — the cleaned messy demo feed.
+
+Mirrors the transformation output exactly: every field of ``CLEAN_RECORD``
+(see spark_schema.py) plus the Bronze ingestion timestamp carried for lineage.
+``record_id`` and ``title`` are non-nullable because the error-level rules in
+quality.yaml drop those rows before the write, and ``record_id`` is unique
+because the transformation keeps only the latest row per key.
+"""
 from dataclasses import dataclass
 from datetime import datetime
 
 from lakehouse_platform.schemas.base import BaseSchema
-from lakehouse_platform.schemas.types import Bigint, Boolean, Double, Int, String
+from lakehouse_platform.schemas.types import Boolean, Double, Int, String
 
 
 @dataclass
 class TableDefinition(BaseSchema):
-    # silver = cleaned, typed, deduplicated. Surrogate + business keys, one row
-    # per record, current state. Every messy raw type is now a real column type.
-    sk_record: Bigint
-    bk_record_id: String
-    title: String | None
-    creators: list                      # array<string>
+    record_id: String
+    title: String
+    creators: list
     summary: String | None
     category: String | None
-    labels: list                        # array<string>
+    labels: list
     year: Int | None
     rating: Double | None
     is_public: Boolean | None
@@ -26,36 +31,37 @@ class TableDefinition(BaseSchema):
     lon: Double | None
     language: String | None
     updated_at: String | None
-    dp_ingestion_ts: datetime | None
-    dp_refresh_ts: datetime
+    ingested_at: datetime
 
     class Meta:
         object_name = "records"
-        object_location = "silver.messy.records"
+        object_location = "silver.records"
         object_description = (
-            "Cleaned, typed and deduplicated messy records. One row per "
-            "bk_record_id, current state. SK is the hashed business key."
+            "Cleaned, typed and deduplicated messy demo records. One row per "
+            "record_id, current state. Heterogeneous raw values are coerced to "
+            "real column types by the cleaning UDF."
         )
-        column_constraints = {"sk_record": {"PK": True}}
+        column_constraints = {"record_id": {"PK": True}}
         custom_table_properties = {"delta.enableChangeDataFeed": "true"}
         column_comments = {
-            "sk_record": "PK — hash of bk_record_id (dp_fk_hash).",
-            "bk_record_id": "BK — source record id, for lineage back to bronze.",
+            "record_id": "Natural key from the source system.",
             "title": "Cleaned title (trimmed, HTML-unescaped).",
             "creators": "Normalized person names (First Last).",
             "summary": "Cleaned free text.",
             "category": "Standardized category label.",
             "labels": "Lowercased, de-duplicated labels.",
             "year": "Publication year parsed from messy input.",
-            "rating": "Rating parsed to double (handles currency/European formats).",
+            "rating": "Rating parsed to double (handles European decimal commas).",
             "is_public": "Boolean parsed from yes/no/1/0/true/false.",
-            "price": "Price parsed to double.",
-            "email": "Validated, lowercased email (null if invalid).",
-            "url": "URL with scheme ensured (null if blank).",
-            "lat": "Latitude parsed from geo object.",
-            "lon": "Longitude parsed from geo object.",
+            "price": "Price parsed to double (currency symbols stripped).",
+            "email": "Validated, lowercased email, null when invalid.",
+            "url": "URL with scheme ensured, null when blank.",
+            "lat": "Latitude parsed from the geo object.",
+            "lon": "Longitude parsed from the geo object.",
             "language": "Normalized language code.",
-            "updated_at": "Source update date parsed to ISO (string).",
-            "dp_ingestion_ts": "Bronze ingestion time, carried for lineage.",
-            "dp_refresh_ts": "When the row was last written by the platform.",
+            "updated_at": "Source update date parsed to an ISO date string.",
+            "ingested_at": "Bronze ingestion timestamp retained for lineage.",
         }
+
+
+TABLE = TableDefinition.Meta.object_location

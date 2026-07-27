@@ -26,6 +26,7 @@ outputs:
   - id: silver_records
     input_id: validated_records
     writer: delta_merge
+    contract: products.messy_records.tables.silver.records.contract:TableDefinition
     options:
       table: ${catalog}.silver.records
       keys: [record_id]
