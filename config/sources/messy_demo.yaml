@@ -1,25 +1,20 @@
-# Source definition for the "messy" demo — a deliberately unstructured feed used
-# to show raw -> structured cleaning. Same config shape as any other source.
+# Source definition for the messy demo — the platform test bed.
+#
+# This is a file-based seed, not an API: the feed ships with the repository so
+# the deliberately heterogeneous records stay stable across runs. Landing is
+# declared in products/messy_records/pipelines/land_bronze.yaml.
 
 source_name: messy_demo
-source_type: rest
-base_url: https://example.com
-endpoint: /messy
-response_format: json
+source_type: file
+format: json_array
+path: datasets/messy_demo/raw_records.json
+schema_version: v1
 
 authentication:
   type: none
 
-pagination:
-  type: page_number
-  page_parameter: page
-  page_size_parameter: limit
-  page_size: 100
-
 incremental:
-  enabled: true
-  strategy: updated_at
-  watermark_column: ingested_at
+  enabled: false        # the seed is re-landed in full; Bronze appends batches
 
 destination:
   bronze_table: bronze.messy_demo_records

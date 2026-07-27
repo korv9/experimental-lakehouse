@@ -7,12 +7,12 @@ pytest.importorskip("pyspark")
 
 from pyspark.sql import Row, SparkSession
 
-from products.philosophy_litterature.notebooks.silver_gutenberg import (
-    build_silver_gutenberg,
+from products.philosophy_litterature.selection_input import SELECTION_SCHEMA
+from products.philosophy_litterature.tables.silver.gutenberg_work.transform import (
+    transform as build_silver_gutenberg,
 )
-from products.philosophy_litterature.notebooks.silver_philosophy_corpus import (
-    SELECTION_SCHEMA,
-    build_silver_philosophy_corpus,
+from products.philosophy_litterature.tables.silver.philosophy_litterature_work.transform import (
+    transform as build_silver_philosophy_corpus,
 )
 
 

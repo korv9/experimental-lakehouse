@@ -43,10 +43,17 @@ def run_pipeline(
             "TRANSFORM",
             "Running transformation",
             id=spec.id,
-            input=spec.input_id,
+            input=",".join(spec.inputs),
             callable=spec.callable,
         )
         transform = import_callable(spec.callable)
+        if spec.input_ids:
+            # multi-input: the frames are passed positionally, in declared order
+            frames[spec.id] = transform(
+                *[frames[upstream] for upstream in spec.input_ids],
+                resolve_values(spec.options, variables),
+            )
+            continue
         frames[spec.id] = transform(
             frames[spec.input_id],
             resolve_values(spec.options, variables),

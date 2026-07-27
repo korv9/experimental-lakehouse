@@ -69,13 +69,20 @@ resources:
           new_cluster: ${var.job_cluster}
 
     # -------------------------------------------------------- messy_records --
-    # Platform test bed: deliberately heterogeneous feed, cleaned into Silver.
-    # NOTE: bronze.messy_demo_records has no ingestion job yet — land it before
-    # scheduling this (see the gap listed in products/messy_records/README.md).
+    # Platform test bed: deliberately heterogeneous feed, landed then cleaned.
+    # The seed file ships with the repository, so this pipeline is self-contained
+    # and is the cheapest way to smoke-test a platform change end to end.
     messy_records_pipeline:
       name: "[${bundle.target}] messy_records pipeline"
       tasks:
+        - task_key: land_bronze
+          notebook_task:
+            notebook_path: ./notebooks/products/messy_records/land_bronze.py
+          job_cluster_key: shared
+
         - task_key: bronze_to_silver
+          depends_on:
+            - task_key: land_bronze
           notebook_task:
             notebook_path: ./notebooks/products/messy_records/bronze_to_silver.py
           job_cluster_key: shared

@@ -44,6 +44,7 @@ packages = [
     "products",
     "products.philosophy_litterature",
     "products.philosophy_litterature.notebooks",
+    "products.philosophy_litterature.pipelines",
     "products.philosophy_litterature.tables",
     "products.philosophy_litterature.tables.bronze",
     "products.philosophy_litterature.tables.bronze.gutenberg_catalog_raw",
@@ -85,6 +86,7 @@ products = "products"
 "products.example_works.pipelines" = ["*.yaml"]
 "products.example_works.tables.silver.works" = ["*.yaml"]
 "products.philosophy_litterature" = ["*.yaml"]
+"products.philosophy_litterature.pipelines" = ["*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -13,7 +13,9 @@ products without duplicating orchestration inside notebooks or product code.
 - Use imperative ingestion for paginated APIs and preserve source payloads in
   append-oriented Bronze tables.
 - Use ACON as the single pipeline graph for inputs, transformations, quality,
-  outputs and post-actions.
+  outputs and post-actions. Every Silver and Gold pipeline is declared this way;
+  only source ingestion stays imperative, because paginated APIs and downloaded
+  snapshots are side effects a graph cannot express.
 - Keep product transformations as testable `DataFrame -> DataFrame` functions.
 - Use error-level quality rules to route invalid rows to product quarantine
   tables, and warn-level rules to record issues without rejecting rows. One

@@ -25,9 +25,17 @@ class Spec:
     id: str
     kind: str
     input_id: str | None = None
+    input_ids: tuple[str, ...] = ()
     callable: str | None = None
     contract: str | None = None
     options: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def inputs(self) -> tuple[str, ...]:
+        """Every upstream id this spec consumes, single- or multi-input."""
+        if self.input_ids:
+            return self.input_ids
+        return (self.input_id,) if self.input_id else ()
 
 
 @dataclass(frozen=True)
@@ -77,6 +85,7 @@ class Acon:
                         id=raw.get("id", ""),
                         kind=raw.get("reader") or raw.get("writer") or section.rstrip("s"),
                         input_id=raw.get("input_id"),
+                        input_ids=tuple(raw.get("input_ids") or ()),
                         callable=raw.get("callable"),
                         contract=raw.get("contract"),
                         options=raw.get("options") or {},
@@ -117,8 +126,13 @@ class Acon:
                 raise AconError("every transformation requires an id")
             if spec.id in ids:
                 raise AconError(f"duplicate spec id: {spec.id}")
-            if not spec.input_id or spec.input_id not in ids:
-                raise AconError(f"{spec.id} references unknown input_id: {spec.input_id}")
+            if spec.input_id and spec.input_ids:
+                raise AconError(f"{spec.id} sets both input_id and input_ids")
+            if not spec.inputs:
+                raise AconError(f"transformation {spec.id} requires input_id or input_ids")
+            for upstream in spec.inputs:
+                if upstream not in ids:
+                    raise AconError(f"{spec.id} references unknown input_id: {upstream}")
             if not spec.callable:
                 raise AconError(f"transformation {spec.id} requires callable")
             ids.add(spec.id)
