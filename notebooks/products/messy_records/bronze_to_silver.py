@@ -1,10 +1,9 @@
 # Databricks notebook source
-from lakehouse_platform.engine import run_pipeline
+from lakehouse_platform.jobs import process_job
 
-result = run_pipeline(
-    spark=spark,  # noqa: F821 - injected by Databricks
+run_id = process_job(
+    spark,  # noqa: F821 - injected by Databricks
     acon="products/messy_records/pipelines/bronze_to_silver.yaml",
-    variables={"catalog": "dev_lakehouse"},
+    catalog="dev_lakehouse",
 )
-
-print(result)
+print(run_id)

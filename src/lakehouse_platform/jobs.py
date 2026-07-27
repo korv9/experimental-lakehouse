@@ -106,12 +106,37 @@ def _validate(result: Any, contract: type, expectations: dict[str, Any]) -> None
 
 def process_job(
     spark: Any,
-    job_config: dict[str, Any],
+    job_config: dict[str, Any] | None = None,
     *,
     catalog: str,
     dataframe: Any | None = None,
+    acon: Any | None = None,
+    variables: dict[str, str] | None = None,
+    pipeline_name: str | None = None,
+    source_name: str | None = None,
 ) -> str:
-    """Validate and write a DataFrame while managing logging and failure reporting."""
+    """Single governed entry point for batch jobs — one call, one engine.
+
+    Two forms:
+    * ACON form (``acon=`` path/dict/Acon): runs the declarative ACON engine
+      (inputs -> transforms -> quality -> writes) wrapped in run logging. This is
+      how the product notebooks execute, so every pipeline goes through one path.
+    * Imperative form (``job_config=`` + optional ``dataframe``): validates one
+      DataFrame against its contract and writes a single target.
+
+    Both record a row in platform.pipeline_runs.
+    """
+    if acon is not None:
+        return _run_acon_job(
+            spark,
+            acon,
+            catalog=catalog,
+            variables=variables,
+            pipeline_name=pipeline_name,
+            source_name=source_name,
+        )
+    if job_config is None:
+        raise ValueError("process_job requires either acon= or job_config=")
     pipeline_name = str(job_config["pipeline_name"])
     source_name = str(job_config["source_name"])
     target_config = dict(job_config["target"])
@@ -149,6 +174,61 @@ def process_job(
             "Job failed",
             pipeline=pipeline_name,
             target=target_table,
+            run_id=run_id,
+            error_type=type(error).__name__,
+            error=str(error),
+        )
+        raise
+
+
+def _run_acon_job(
+    spark: Any,
+    acon: Any,
+    *,
+    catalog: str,
+    variables: dict[str, str] | None = None,
+    pipeline_name: str | None = None,
+    source_name: str | None = None,
+) -> str:
+    """Run an ACON pipeline through the engine, wrapped in pipeline-run logging.
+
+    Adds the governance the raw engine lacks (a platform.pipeline_runs record and
+    failure reporting) so the declarative products get the same guarantees as the
+    imperative jobs — without a second execution path in the notebooks.
+    """
+    from lakehouse_platform.core.acon import Acon
+    from lakehouse_platform.engine import run_pipeline
+
+    if isinstance(acon, Acon):
+        config = acon
+    elif isinstance(acon, dict):
+        config = Acon.from_dict(acon)
+    else:
+        config = Acon.from_yaml(acon)
+
+    name = pipeline_name or config.pipeline.id
+    source = source_name or name
+    merged_variables = {"catalog": catalog, **(variables or {})}
+
+    run_id = start_run(spark, catalog, pipeline_name=name, source_name=source)
+    progress("JOB", "ACON job started", pipeline=name, run_id=run_id)
+    try:
+        result = run_pipeline(spark, config, merged_variables)
+        finish_run(spark, catalog, run_id, status="success", written=len(result.outputs))
+        progress(
+            "JOB",
+            "ACON job completed",
+            pipeline=name,
+            outputs=len(result.outputs),
+            run_id=run_id,
+        )
+        return run_id
+    except Exception as error:
+        finish_run(spark, catalog, run_id, status="failed", error=str(error))
+        progress(
+            "JOB",
+            "ACON job failed",
+            pipeline=name,
             run_id=run_id,
             error_type=type(error).__name__,
             error=str(error),
