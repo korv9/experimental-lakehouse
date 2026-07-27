@@ -36,7 +36,7 @@ def run_pipeline(
 
     for spec in config.inputs:
         progress("INPUT", "Reading source", id=spec.id, reader=spec.kind)
-        frames[spec.id] = read_input(spark, spec.kind, _resolve_values(spec.options, variables))
+        frames[spec.id] = read_input(spark, spec.kind, resolve_values(spec.options, variables))
 
     for spec in config.transformations:
         progress(
@@ -49,7 +49,7 @@ def run_pipeline(
         transform = import_callable(spec.callable)
         frames[spec.id] = transform(
             frames[spec.input_id],
-            _resolve_values(spec.options, variables),
+            resolve_values(spec.options, variables),
         )
 
     for spec in config.quality:
@@ -58,7 +58,7 @@ def run_pipeline(
         good, quarantine = apply_quality(frames[spec.input_id], rules, spec.on_failure)
         frames[spec.id] = good
         if spec.on_failure == "quarantine" and spec.quarantine_table:
-            quarantine_table = _resolve_values(spec.quarantine_table, variables)
+            quarantine_table = resolve_values(spec.quarantine_table, variables)
             progress("QUALITY", "Persisting quarantine", table=quarantine_table)
             write_output(
                 spark,
@@ -69,7 +69,7 @@ def run_pipeline(
 
     written = []
     for spec in config.outputs:
-        options = _resolve_values(spec.options, variables)
+        options = resolve_values(spec.options, variables)
         progress("OUTPUT", "Writing target", id=spec.id, table=options["table"])
         write_output(spark, frames[spec.input_id], spec.kind, options)
         written.append(options["table"])
@@ -79,8 +79,8 @@ def run_pipeline(
         run_post_action(
             spark,
             spec.action,
-            _resolve_values(spec.target, variables),
-            _resolve_values(spec.options, variables),
+            resolve_values(spec.target, variables),
+            resolve_values(spec.options, variables),
         )
 
     result = PipelineResult(
@@ -114,7 +114,7 @@ def _relative_to_acon(acon: Acon, value: str) -> Path:
     return acon.source_path.parent / path
 
 
-def _resolve_values(value, variables: dict[str, str]):
+def resolve_values(value, variables: dict[str, str]):
     """Resolve ${name} placeholders recursively in ACON runtime values."""
     if isinstance(value, str):
         for name, replacement in variables.items():
@@ -123,7 +123,7 @@ def _resolve_values(value, variables: dict[str, str]):
             raise ValueError(f"unresolved ACON variable: {value}")
         return value
     if isinstance(value, dict):
-        return {key: _resolve_values(item, variables) for key, item in value.items()}
+        return {key: resolve_values(item, variables) for key, item in value.items()}
     if isinstance(value, list):
-        return [_resolve_values(item, variables) for item in value]
+        return [resolve_values(item, variables) for item in value]
     return value

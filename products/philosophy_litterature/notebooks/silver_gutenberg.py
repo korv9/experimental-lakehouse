@@ -11,8 +11,7 @@ from products.philosophy_litterature.notebooks import _runtime
 
 _runtime.bootstrap()
 
-from lakehouse_platform.io.readers import uc_read
-from lakehouse_platform.jobs import process_job
+from lakehouse_platform.jobs import process_job, read_table
 from products.philosophy_litterature.tables.silver.gutenberg_work.contract import (
     TableDefinition,
 )
@@ -96,7 +95,7 @@ def main(spark_session: Any | None = None) -> str:
     spark_session = _runtime.active_spark(spark_session)
     catalog = _runtime.parameter("catalog", "dev_lakehouse", globals().get("dbutils"))
 
-    df_bronze = uc_read(
+    df_bronze = read_table(
         spark_session,
         "bronze.gutenberg_catalog_raw",
         catalog=catalog,

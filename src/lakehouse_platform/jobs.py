@@ -16,6 +16,33 @@ class JobContext:
     run_id: str
 
 
+def read_table(
+    spark: Any,
+    table: str,
+    *,
+    catalog: str,
+    variables: dict[str, str] | None = None,
+    reader: str = "unity_catalog_table",
+):
+    """Single notebook-facing read — the same reader layer ACON uses.
+
+    Notebooks that build a DataFrame imperatively call this instead of touching
+    spark.table directly, so every read in the platform goes through one path:
+    ACON variable resolution (``${catalog}`` and friends) followed by the ACON
+    reader registry in ``io.readers.read_input``. Declarative notebooks get the
+    identical behaviour through their ACON ``inputs`` section.
+
+        df = read_table(spark, "bronze.gutenberg_catalog_raw", catalog=catalog)
+        df = read_table(spark, "${catalog}.silver.works", catalog=catalog)
+    """
+    from lakehouse_platform.engine import resolve_values
+    from lakehouse_platform.io.readers import read_input
+
+    merged_variables = {"catalog": catalog, **(variables or {})}
+    options = resolve_values({"table": table, "catalog": catalog}, merged_variables)
+    return read_input(spark, reader, options)
+
+
 def _qualified_table(catalog: str, path: str) -> str:
     parts = path.split(".")
     if len(parts) == 2:

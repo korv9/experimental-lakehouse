@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from lakehouse_platform.core.acon import Acon, AconError
-from lakehouse_platform.engine import _resolve_values
+from lakehouse_platform.engine import resolve_values
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -40,7 +40,7 @@ def test_kimball_gold_acon_has_fact_and_dimensions():
 
 
 def test_runtime_variables_resolve_nested_values():
-    assert _resolve_values(
+    assert resolve_values(
         {"table": "${catalog}.gold.fact_work"},
         {"catalog": "test_lakehouse"},
     ) == {"table": "test_lakehouse.gold.fact_work"}

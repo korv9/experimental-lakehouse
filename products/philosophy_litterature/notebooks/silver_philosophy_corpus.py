@@ -11,8 +11,7 @@ from products.philosophy_litterature.notebooks import _runtime
 
 _runtime.bootstrap()
 
-from lakehouse_platform.io.readers import uc_read
-from lakehouse_platform.jobs import process_job
+from lakehouse_platform.jobs import process_job, read_table
 from products.philosophy_litterature.selection import load_selection
 from products.philosophy_litterature.tables.silver.philosophy_litterature_work.contract import (
     TableDefinition,
@@ -66,7 +65,7 @@ def main(spark_session: Any | None = None) -> str:
     selection_rows = load_selection(REPORT)
     selection = spark_session.createDataFrame(selection_rows, schema=SELECTION_SCHEMA)
 
-    catalog_works = uc_read(
+    catalog_works = read_table(
         spark_session,
         "silver.gutenberg_work",
         catalog=catalog,

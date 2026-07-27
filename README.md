@@ -175,34 +175,48 @@ This boundary makes the same transformation usable from:
 Source names, mappings and domain rules belong to the product. Generic hashing,
 I/O, orchestration and quality execution belong to the platform.
 
-## Product notebooks and ACON entrypoints
+## Product notebooks: two calls, one engine
 
-Self-contained product notebooks keep `uc_read`, PySpark transformations,
-validation and `job_config` together under the product. They remain ordinary
-importable Python modules and must not depend on hidden interactive state.
+Every notebook uses the same two entry points, both from
+`lakehouse_platform.jobs`. Reads go through `read_table`, writes through
+`process_job`. Notebooks never call the engine, a reader or a writer directly.
 
-Fully declarative products can instead use a thin ACON entrypoint:
+Declarative products pass an ACON to `process_job`, which owns the whole graph:
 
 ```python
-from lakehouse_platform.engine import run_pipeline
+from lakehouse_platform.jobs import process_job
 
-result = run_pipeline(
-    spark=spark,
+run_id = process_job(
+    spark,
     acon="products/messy_records/pipelines/bronze_to_silver.yaml",
-    variables={"catalog": "dev_lakehouse"},
+    catalog="dev_lakehouse",
 )
-
-print(result)
 ```
+
+Self-contained products build a DataFrame first, then hand it to the same call:
+
+```python
+from lakehouse_platform.jobs import process_job, read_table
+
+df_bronze = read_table(spark, "bronze.gutenberg_catalog_raw", catalog=catalog)
+df_silver = build_silver_gutenberg(df_bronze)
+
+run_id = process_job(spark, job_config, catalog=catalog, dataframe=df_silver)
+```
+
+`read_table` resolves ACON variables (`${catalog}`) and dispatches into the ACON
+reader registry, so an imperative read and an ACON `inputs` entry take the same
+code path. Both `process_job` forms record a `platform.pipeline_runs` row.
 
 See [`products/philosophy_litterature/notebooks/`](products/philosophy_litterature/notebooks/)
 for the self-contained pattern and
 [`notebooks/products/messy_records/bronze_to_silver.py`](notebooks/products/messy_records/bronze_to_silver.py)
-for the ACON entrypoint pattern.
+for the ACON pattern.
 
 ## Execution engine
 
-`run_pipeline` performs these steps:
+`process_job` opens a pipeline run, delegates to `run_pipeline`, and closes the
+run with its status. `run_pipeline` performs these steps:
 
 1. Parse and validate ACON.
 2. Materialize configured inputs.
@@ -212,13 +226,15 @@ for the ACON entrypoint pattern.
 6. Run explicit maintenance actions.
 7. Return pipeline status, duration and written targets.
 
-The public API is deliberately small:
+The notebook-facing API is deliberately small:
 
 ```python
-from lakehouse_platform import run_pipeline
+from lakehouse_platform.jobs import process_job, read_table
 ```
 
-Internal modules can evolve without forcing every product to change.
+`run_pipeline` remains importable for tooling, but products should go through
+`process_job` so every execution is logged. Internal modules can evolve without
+forcing every product to change.
 
 ## Data layers
 
@@ -261,7 +277,7 @@ Create:
 products/my_product/
 ├── __init__.py
 ├── notebooks/
-│   └── build_entity.py       # uc_read + PySpark + checks + job_config
+│   └── build_entity.py       # read_table + PySpark + checks + job_config
 └── tables/
     ├── silver/
     │   └── entity_name/
@@ -277,7 +293,7 @@ products/my_product/
 
 Then:
 
-1. Read Unity Catalog inputs with `uc_read` near the start of the product notebook.
+1. Read Unity Catalog inputs with `read_table` near the start of the product notebook.
 2. Implement the visible PySpark transformation in that notebook.
 3. Add contract and product checks to its `job_config`.
 4. Configure merge, overwrite or append in `job_config.target`.
