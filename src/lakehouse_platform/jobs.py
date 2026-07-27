@@ -235,9 +235,10 @@ def _run_acon_job(
 
     name = pipeline_name or config.pipeline.id
     source = source_name or name
-    merged_variables = {"catalog": catalog, **(variables or {})}
 
     run_id = start_run(spark, catalog, pipeline_name=name, source_name=source)
+    # run_id travels with the ACON so quality results can be tied to this run
+    merged_variables = {"catalog": catalog, "run_id": run_id, **(variables or {})}
     progress("JOB", "ACON job started", pipeline=name, run_id=run_id)
     try:
         result = run_pipeline(spark, config, merged_variables)

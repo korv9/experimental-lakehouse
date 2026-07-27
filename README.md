@@ -45,7 +45,7 @@ unused abstractions.
 │       ├── io/                   # Readers and Delta writers
 │       ├── metadata/             # Unity Catalog layout, state and watermarks
 │       ├── observability/        # Progress events and logging
-│       ├── quality/              # Portable quality gate and DQX adapter
+│       ├── quality/              # The single rule-driven quality gate
 │       ├── schemas/              # Base table-contract machinery
 │       ├── transforms/           # Reusable technical transformations
 │       ├── tools/                # API explorer and developer utilities
@@ -492,7 +492,7 @@ Next platform increments should be driven by the Philosophy Books MVP:
 - source-specific Gutenberg boilerplate removal and text chunking,
 - download-manifest integration in the Philosophy ingestion job,
 - embedding/model version registry and experiment tracking,
-- richer DQX adapter and quality metrics,
+- more quality check types and richer quality metrics,
 - Databricks Asset Bundles and CI/CD,
 - lineage and product ownership metadata,
 - separate dev/test/prod deployment configuration.

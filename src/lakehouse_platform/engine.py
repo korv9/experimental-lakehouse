@@ -55,7 +55,15 @@ def run_pipeline(
     for spec in config.quality:
         progress("QUALITY", "Applying quality rules", id=spec.id, rules=spec.rules)
         rules = _relative_to_acon(config, spec.rules)
-        good, quarantine = apply_quality(frames[spec.input_id], rules, spec.on_failure)
+        good, quarantine = apply_quality(
+            frames[spec.input_id],
+            rules,
+            spec.on_failure,
+            spark=spark,
+            catalog=variables.get("catalog"),
+            run_id=variables.get("run_id"),
+            table=f"{config.pipeline.id}.{spec.id}",
+        )
         frames[spec.id] = good
         if spec.on_failure == "quarantine" and spec.quarantine_table:
             quarantine_table = resolve_values(spec.quarantine_table, variables)

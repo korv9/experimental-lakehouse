@@ -1,31 +1,22 @@
 """Bronze -> Silver for the example source.
 
-Read top to bottom — each helper is one step of the transformation:
-  1. _read_incremental  : only bronze rows newer than the last run (watermark)
-  2. _parse_and_flatten : parse raw_payload against RAW_WORK  -> schema enforcement
-  3. _dedupe_latest     : keep the latest row per business key
-  4. apply_quality (DQX): quarantine bad rows, persist quality results
-  5. _upsert            : MERGE good rows into silver (idempotent)
+Domain logic only. Reading, the quality gate and the write are declared in
+``pipelines/bronze_to_silver.yaml`` and executed by the platform, so this module
+is a pure DataFrame-in, DataFrame-out step:
 
-Persons are extracted from the same parsed frame into ``silver.persons``.
+  1. _parse_and_flatten : parse raw_payload against RAW_WORK -> schema enforcement
+  2. _dedupe_latest     : keep the latest row per business key
+
+Quality (quarantining rows that fail an error rule) is applied by the ACON
+engine using ``quality.yaml`` in this directory.
 """
 from __future__ import annotations
 
-from delta.tables import DeltaTable
-from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
-from lakehouse_platform.metadata.control_tables import get_watermark
 from lakehouse_platform.observability.progress import progress
-from lakehouse_platform.quality.dqx import apply_quality
-from products.example_works.tables.silver.works.contract import BUSINESS_KEY, RAW_WORK, TABLE
-
-
-def _read_incremental(spark: SparkSession, catalog: str, source: str = "example_data") -> DataFrame:
-    # incremental read: cheap re-runs, only the new rows since the last watermark
-    since = get_watermark(spark, catalog, source)
-    bronze = f"{catalog}.bronze.{source}_records"
-    return spark.table(bronze).where(F.col("ingested_at") > F.to_timestamp(F.lit(since)))
+from products.example_works.tables.silver.works.contract import BUSINESS_KEY, RAW_WORK
 
 
 def _parse_and_flatten(df: DataFrame) -> DataFrame:
@@ -57,28 +48,3 @@ def transform(bronze: DataFrame, options: dict | None = None) -> DataFrame:
     result = _dedupe_latest(_parse_and_flatten(bronze), BUSINESS_KEY)
     progress("EXAMPLE_WORKS", "Silver Works transformation graph created")
     return result
-
-
-def _upsert(spark: SparkSession, df: DataFrame, table: str, key: str) -> None:
-    # MERGE = idempotent write: re-running never duplicates rows
-    if spark.catalog.tableExists(table):
-        (DeltaTable.forName(spark, table).alias("t")
-            .merge(df.alias("s"), f"t.{key} = s.{key}")
-            .whenMatchedUpdateAll()
-            .whenNotMatchedInsertAll()
-            .execute())
-    else:
-        df.write.saveAsTable(table)
-
-
-def run(spark: SparkSession, catalog: str = "dev_lakehouse", run_id: str | None = None) -> int:
-    works = _dedupe_latest(
-        _parse_and_flatten(_read_incremental(spark, catalog)),
-        BUSINESS_KEY,
-    )
-
-    # DQX splits the frame into rows that pass and rows to quarantine
-    good, _quarantine = apply_quality(spark, works, table=TABLE, run_id=run_id, catalog=catalog)
-    _upsert(spark, good, f"{catalog}.{TABLE}", BUSINESS_KEY)
-
-    return good.count()

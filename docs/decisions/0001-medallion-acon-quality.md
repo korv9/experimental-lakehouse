@@ -16,7 +16,9 @@ products without duplicating orchestration inside notebooks or product code.
   outputs and post-actions.
 - Keep product transformations as testable `DataFrame -> DataFrame` functions.
 - Use error-level quality rules to route invalid rows to product quarantine
-  tables. Keep DQX behind the platform quality boundary where appropriate.
+  tables, and warn-level rules to record issues without rejecting rows. One
+  engine (`quality/engine.py`) evaluates both, driven from the ACON `quality:`
+  section, and appends per-rule outcomes to `platform.data_quality_results`.
 - Use idempotent Delta MERGE for mutable Silver entities.
 - Model analytical Gold products as explicit Kimball facts and dimensions.
 
