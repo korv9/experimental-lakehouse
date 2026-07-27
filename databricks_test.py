@@ -1,9 +1,17 @@
 # Databricks notebook source
-"""Run this first in Databricks to bootstrap and explain the platform.
+"""RUN THIS to test the platform on Databricks.
 
-The file works as a Databricks notebook, a Python file task, or a checked-out
-Repo file. It adds the repository's ``src`` directory to ``sys.path`` so an
-editable install is not required for this first diagnostic run.
+Exercises the messy_records product end to end — land the seed into Bronze,
+clean it into Silver through the quality and contract gates, then verify the
+row counts, the run metadata and the persisted quality results. No external API
+is involved, so it works on a fresh workspace.
+
+Widgets: ``catalog`` (default dev_lakehouse), ``create_catalog``,
+``setup_platform``. It raises on failure, so a job task turns red.
+
+Works as a notebook, a Python file task, or a checked-out Repo file: the
+repository's ``src`` directory is put on ``sys.path`` so an editable install is
+not required for this first run.
 """
 from __future__ import annotations
 
@@ -26,10 +34,10 @@ if str(SOURCE_ROOT) not in sys.path:
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from lakehouse_platform.tools.databricks_demo import (
-    DatabricksDemoOptions,
-    parse_bool,
-    run_databricks_demo,
+from lakehouse_platform.tools.databricks_demo import parse_bool  # noqa: E402
+from lakehouse_platform.tools.databricks_test import (  # noqa: E402
+    DatabricksTestOptions,
+    run_databricks_test,
 )
 
 
@@ -48,17 +56,17 @@ def main(spark_session: Any | None = None):
         spark_session = SparkSession.getActiveSession()
         if spark_session is None:
             raise RuntimeError(
-                "No active Spark session. Run demo_databricks.py on Databricks "
+                "No active Spark session. Run databricks_test.py on Databricks "
                 "compute with Unity Catalog enabled."
             )
 
-    options = DatabricksDemoOptions(
+    options = DatabricksTestOptions(
         catalog=_parameter("catalog", "dev_lakehouse"),
+        repository_root=REPOSITORY_ROOT,
         create_catalog=parse_bool(_parameter("create_catalog", "true")),
-        run_volume_probe=parse_bool(_parameter("run_volume_probe", "true")),
-        run_source_smoke=parse_bool(_parameter("run_source_smoke", "true")),
+        setup_platform=parse_bool(_parameter("setup_platform", "true")),
     )
-    return run_databricks_demo(spark_session, options)
+    return run_databricks_test(spark_session, options)
 
 
 if __name__ == "__main__":

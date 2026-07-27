@@ -36,7 +36,7 @@ metadata; 54 approved corpus entries currently map to 53 unique Gutenberg IDs.
 
 ## Databricks Workflow
 
-Run [`demo_databricks.py`](../../demo_databricks.py) once to create Unity
+Run [`databricks_test.py`](../../databricks_test.py) once to create Unity
 Catalog schemas, Volumes and control tables. Then create a Workflow containing:
 
 1. [`bronze_gutenberg.py`](notebooks/bronze_gutenberg.py)

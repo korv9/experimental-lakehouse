@@ -30,6 +30,23 @@ resources:
         - job_cluster_key: shared
           new_cluster: ${var.job_cluster}
 
+    # ----------------------------------------------------------- smoke test --
+    # Run after deploying a platform change. Uses the messy_records seed that
+    # ships with the repository, so it needs no external API and asserts real
+    # row counts rather than just finishing.
+    platform_smoke_test:
+      name: "[${bundle.target}] platform smoke test"
+      tasks:
+        - task_key: end_to_end_test
+          notebook_task:
+            notebook_path: ./databricks_test.py
+            base_parameters:
+              catalog: ${var.catalog}
+          job_cluster_key: shared
+      job_clusters:
+        - job_cluster_key: shared
+          new_cluster: ${var.job_cluster}
+
     # -------------------------------------------------------- example_works --
     # API -> Bronze -> Silver -> Kimball Gold -> experiment aggregation.
     example_works_pipeline:

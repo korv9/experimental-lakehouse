@@ -72,7 +72,7 @@ unused abstractions.
 ├── datasets/                     # Small, versioned demo fixtures
 ├── docs/                         # ADRs, architecture, models and runbooks
 ├── tests/                        # Unit, integration and quality tests
-├── demo_databricks.py            # Guided first run on Databricks
+├── databricks_test.py            # End-to-end platform test on Databricks
 └── pyproject.toml                # Package, dependencies and tool configuration
 ```
 
@@ -311,30 +311,31 @@ Only add a new platform adapter when multiple products need the capability.
 
 ## First run in Databricks
 
-Run [`demo_databricks.py`](demo_databricks.py) first. Open the repository as a
+Run [`databricks_test.py`](databricks_test.py) first. Open the repository as a
 Databricks Git folder, attach the file to Unity Catalog-enabled compute and run
 the whole file. It is both a Databricks notebook source and a Python entrypoint,
 and it adds the repository's `src` directory to the import path for this first
 run.
 
-The demo prints every stage while it:
+It tests the platform end to end using the `messy_records` product, whose seed
+file ships with the repository — so no external API has to be reachable:
 
-1. shows the Spark runtime, current identity and selected catalog;
-2. creates or validates the catalog, layer schemas and managed volumes;
-3. creates the five Delta control tables;
-4. inventories every expected Unity Catalog object;
-5. verifies a temporary Volume file with SHA-256 and removes it;
-6. records and completes a real row in `platform.pipeline_runs`; and
-7. optionally tests the official compressed Gutenberg catalog feed.
+1. creates or validates the catalog, layer schemas and control tables;
+2. lands the seed verbatim into append-only Bronze through ACON;
+3. runs Bronze -> Silver: cleaning, the quality gate and the contract gate;
+4. verifies the outcome against numbers the seed implies — 11 records, 10 after
+   deduplication, 2 quarantined, 8 in Silver — plus rows in
+   `platform.pipeline_runs` and `platform.data_quality_results`.
+
+It raises on failure, so a Workflow task turns red instead of quietly passing.
 
 Use the notebook widgets at the top of the run:
 
 | Widget | Default | Purpose |
 | --- | --- | --- |
-| `catalog` | `dev_lakehouse` | Unity Catalog catalog used by the demo |
+| `catalog` | `dev_lakehouse` | Unity Catalog catalog used by the test |
 | `create_catalog` | `true` | Set to `false` when an administrator created it |
-| `run_volume_probe` | `true` | Test governed file write/read/delete access |
-| `run_source_smoke` | `true` | Test access to the official catalog feed without downloading it |
+| `setup_platform` | `true` | Set to `false` to test against existing objects |
 
 The setup identity needs permission to create the requested objects. In a
 managed environment, ask an administrator to create and grant access to the
