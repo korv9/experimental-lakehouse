@@ -1,0 +1,122 @@
+# Orchestration — every scheduled job on the platform, in one place.
+#
+# This is a Databricks Asset Bundle resources file, included by databricks.yml.
+# Databricks' own guidance is to split resources across resources/*.yml as a
+# bundle grows; with three products a single file is easier to reason about, so
+# all jobs live here. Split it per product when this file stops fitting on a
+# screen.
+#
+# Division of labour:
+#   orchestration.yml  when jobs run, in what order, on which compute
+#   ACON (*.yaml)      what a pipeline reads, transforms, validates and writes
+#   contract.py        the shape each table is allowed to have
+#
+# Deploy:  databricks bundle deploy -t dev
+# Run:     databricks bundle run platform_setup -t dev
+
+resources:
+  jobs:
+
+    # ---------------------------------------------------------------- setup --
+    # Run once per environment (and after changing the Unity Catalog layout).
+    platform_setup:
+      name: "[${bundle.target}] platform setup"
+      tasks:
+        - task_key: create_catalog_and_control_tables
+          notebook_task:
+            notebook_path: ./notebooks/setup/00_create_platform.py
+          job_cluster_key: shared
+      job_clusters:
+        - job_cluster_key: shared
+          new_cluster: ${var.job_cluster}
+
+    # -------------------------------------------------------- example_works --
+    # API -> Bronze -> Silver -> Kimball Gold -> experiment aggregation.
+    example_works_pipeline:
+      name: "[${bundle.target}] example_works pipeline"
+      schedule:
+        quartz_cron_expression: "0 0 5 * * ?"   # 05:00 UTC daily
+        timezone_id: UTC
+        pause_status: PAUSED                    # unpause when the source is real
+      tasks:
+        - task_key: ingest_bronze
+          notebook_task:
+            notebook_path: ./notebooks/ingestion/01_run_ingestion.py
+          job_cluster_key: shared
+
+        - task_key: bronze_to_silver
+          depends_on:
+            - task_key: ingest_bronze
+          notebook_task:
+            notebook_path: ./notebooks/products/example_works/bronze_to_silver.py
+          job_cluster_key: shared
+
+        - task_key: silver_to_gold
+          depends_on:
+            - task_key: bronze_to_silver
+          notebook_task:
+            notebook_path: ./notebooks/products/example_works/silver_to_gold.py
+          job_cluster_key: shared
+
+        - task_key: experiments
+          depends_on:
+            - task_key: silver_to_gold
+          notebook_task:
+            notebook_path: ./notebooks/products/example_works/experiments.py
+          job_cluster_key: shared
+      job_clusters:
+        - job_cluster_key: shared
+          new_cluster: ${var.job_cluster}
+
+    # -------------------------------------------------------- messy_records --
+    # Platform test bed: deliberately heterogeneous feed, cleaned into Silver.
+    # NOTE: bronze.messy_demo_records has no ingestion job yet — land it before
+    # scheduling this (see the gap listed in products/messy_records/README.md).
+    messy_records_pipeline:
+      name: "[${bundle.target}] messy_records pipeline"
+      tasks:
+        - task_key: bronze_to_silver
+          notebook_task:
+            notebook_path: ./notebooks/products/messy_records/bronze_to_silver.py
+          job_cluster_key: shared
+      job_clusters:
+        - job_cluster_key: shared
+          new_cluster: ${var.job_cluster}
+
+    # ------------------------------------------------- philosophy_litterature --
+    # Gutenberg catalog snapshot -> normalized works -> reviewed corpus.
+    # These notebooks read a `catalog` widget, so the target catalog is passed in.
+    philosophy_litterature_pipeline:
+      name: "[${bundle.target}] philosophy_litterature pipeline"
+      schedule:
+        quartz_cron_expression: "0 0 4 ? * MON"  # weekly, Monday 04:00 UTC
+        timezone_id: UTC
+        pause_status: PAUSED
+      tasks:
+        - task_key: bronze_gutenberg
+          notebook_task:
+            notebook_path: ./products/philosophy_litterature/notebooks/bronze_gutenberg.py
+            base_parameters:
+              catalog: ${var.catalog}
+          job_cluster_key: shared
+
+        - task_key: silver_gutenberg
+          depends_on:
+            - task_key: bronze_gutenberg
+          notebook_task:
+            notebook_path: ./products/philosophy_litterature/notebooks/silver_gutenberg.py
+            base_parameters:
+              catalog: ${var.catalog}
+          job_cluster_key: shared
+
+        - task_key: silver_philosophy_corpus
+          depends_on:
+            - task_key: silver_gutenberg
+          notebook_task:
+            notebook_path: ./products/philosophy_litterature/notebooks/silver_philosophy_corpus.py
+            base_parameters:
+              catalog: ${var.catalog}
+          job_cluster_key: shared
+      job_clusters:
+        - job_cluster_key: shared
+          new_cluster: ${var.job_cluster}

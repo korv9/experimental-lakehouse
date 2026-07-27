@@ -1,0 +1,42 @@
+# Databricks Asset Bundle root.
+#
+# Deliberately thin: the CLI requires this filename, but every job lives in
+# orchestration.yml so there is one place to see what runs. Variables and
+# per-environment overrides belong here because they are bundle-wide.
+
+bundle:
+  name: experimental_lakehouse
+
+include:
+  - orchestration.yml
+
+variables:
+  catalog:
+    description: Unity Catalog the jobs read from and write to.
+    default: dev_lakehouse
+
+  job_cluster:
+    description: Cluster shared by every task in a job run.
+    type: complex
+    default:
+      spark_version: "15.4.x-scala2.12"
+      node_type_id: i3.xlarge
+      num_workers: 1
+      data_security_mode: SINGLE_USER   # required for Unity Catalog access
+
+targets:
+  dev:
+    mode: development                   # prefixes resources, pauses schedules
+    default: true
+    variables:
+      catalog: dev_lakehouse
+
+  prod:
+    mode: production
+    variables:
+      catalog: prod_lakehouse
+      job_cluster:
+        spark_version: "15.4.x-scala2.12"
+        node_type_id: i3.xlarge
+        num_workers: 4
+        data_security_mode: SINGLE_USER
