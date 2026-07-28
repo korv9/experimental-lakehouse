@@ -66,8 +66,13 @@ def test_variables_used_by_jobs_are_declared_in_the_bundle():
     assert used <= declared, f"undeclared bundle variables: {sorted(used - declared)}"
 
 
-def test_every_product_pipeline_is_scheduled_or_explicitly_manual():
-    """Each product should be represented, so nothing is silently unrunnable."""
+def test_every_product_has_a_job():
+    """Derived from the products directory, so a new product cannot be forgotten."""
     jobs = _jobs()
-    for product in ("example_works", "messy_records", "philosophy_litterature"):
-        assert f"{product}_pipeline" in jobs, f"{product} has no job in orchestration.yml"
+    products = {
+        path.name
+        for path in (ROOT / "products").iterdir()
+        if path.is_dir() and not path.name.startswith("__")
+    }
+    missing = {p for p in products if f"{p}_pipeline" not in jobs}
+    assert not missing, f"products without a job in orchestration.yml: {sorted(missing)}"

@@ -1,0 +1,82 @@
+pipeline:
+  id: drug_synergy_land_bronze
+  owner: data-platform
+  version: 1
+  description: Land the three downloaded files verbatim into append-only Bronze.
+
+# All three sources share one landing callable and differ only by options —
+# config over duplication. PubChem is not here: it is ingested live by the REST
+# runner (notebooks/products/drug_synergy/ingest_pubchem.py).
+
+inputs:
+  - id: drugcomb_file
+    reader: csv_records
+    options:
+      path: ${drugcomb_file}
+
+  - id: depmap_model_file
+    reader: csv_records
+    options:
+      path: ${depmap_model_file}
+
+  - id: depmap_expression_file
+    reader: csv_records
+    options:
+      path: ${depmap_expression_file}
+
+transformations:
+  - id: drugcomb_rows
+    input_id: drugcomb_file
+    callable: products.drug_synergy.tables.bronze.landing:land
+    options:
+      source_name: drugcomb_synergy
+      source_file: ${drugcomb_file}
+      id_fields: [Drug1, Drug2, Cell line]
+      schema_version: v1
+
+  - id: depmap_model_rows
+    input_id: depmap_model_file
+    callable: products.drug_synergy.tables.bronze.landing:land
+    options:
+      source_name: depmap_model
+      source_file: ${depmap_model_file}
+      id_fields: [ModelID]
+      schema_version: ${depmap_release}
+
+  - id: depmap_expression_rows
+    input_id: depmap_expression_file
+    callable: products.drug_synergy.tables.bronze.landing:land
+    options:
+      source_name: depmap_expression
+      source_file: ${depmap_expression_file}
+      id_fields: [ModelID]
+      schema_version: ${depmap_release}
+
+quality: []                       # Bronze accepts everything; Silver is the gate
+
+outputs:
+  - id: bronze_drugcomb
+    input_id: drugcomb_rows
+    writer: delta_table
+    contract: products.drug_synergy.tables.bronze.drugcomb_synergy_raw.contract:TableDefinition
+    options:
+      table: ${catalog}.bronze.drugcomb_synergy_raw
+      mode: append
+
+  - id: bronze_depmap_model
+    input_id: depmap_model_rows
+    writer: delta_table
+    contract: products.drug_synergy.tables.bronze.depmap_model_raw.contract:TableDefinition
+    options:
+      table: ${catalog}.bronze.depmap_model_raw
+      mode: append
+
+  - id: bronze_depmap_expression
+    input_id: depmap_expression_rows
+    writer: delta_table
+    contract: products.drug_synergy.tables.bronze.depmap_expression_raw.contract:TableDefinition
+    options:
+      table: ${catalog}.bronze.depmap_expression_raw
+      mode: append
+
+post_actions: []

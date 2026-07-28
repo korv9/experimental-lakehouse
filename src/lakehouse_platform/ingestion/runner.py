@@ -74,6 +74,69 @@ def _bronze_rows(
     return rows
 
 
+def _lookup_rows(
+    client,
+    cfg: dict,
+    values: list,
+    *,
+    source: str,
+    run_id: str,
+    batch_id: str,
+    ingested_at: datetime,
+    schema_version: str,
+) -> list[dict]:
+    """One request per value, for sources that answer lookups instead of pages.
+
+    PubChem-style APIs have no cursor to follow: you ask about one name at a
+    time. Failures are recorded as rows with their HTTP status rather than
+    dropped, so an unresolved drug stays visible and coverage is measurable.
+    Templates are tried in order, which is how a name lookup can fall back to a
+    CAS-number lookup.
+    """
+    from urllib.parse import quote
+
+    lookup = cfg["lookup"]
+    templates = [lookup["endpoint_template"], *lookup.get("fallback_endpoint_templates", [])]
+    rows = []
+
+    for value in values:
+        payload, status, used_template = None, 0, None
+        for template in templates:
+            endpoint = template.format(value=quote(str(value), safe=""))
+            try:
+                payload = client.get(endpoint)
+                status, used_template = 200, template
+                break
+            except Exception as error:  # noqa: BLE001 - a miss is data, not a crash
+                response = getattr(error, "response", None)
+                status = getattr(response, "status_code", 0) or 0
+                used_template = template
+
+        text = json.dumps(payload or {}, ensure_ascii=False, sort_keys=True)
+        params = json.dumps(
+            {"lookup": lookup.get("name", "value"), "endpoint": used_template},
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+        rows.append(
+            {
+                "ingestion_id": stable_ingestion_id(source, str(value), text),
+                "source_name": source,
+                "source_endpoint": used_template or "",
+                "ingested_at": ingested_at,
+                "batch_id": batch_id,
+                "run_id": run_id,
+                "request_parameters": params,
+                "http_status": int(status),
+                "source_record_id": str(value),
+                "raw_payload": text,
+                "schema_version": schema_version,
+            }
+        )
+    progress("INGEST", "Lookups completed", source=source, values=len(values))
+    return rows
+
+
 def _target_name(catalog: str, configured: str) -> str:
     parts = configured.split(".")
     if len(parts) == 2:
@@ -129,10 +192,25 @@ def _commit_bronze_page(
         spark.catalog.dropTempView(view)
 
 
-def ingest(spark: SparkSession, config_path: str, catalog: str = "dev_lakehouse") -> str:
+def ingest(
+    spark: SparkSession,
+    config_path: str,
+    catalog: str = "dev_lakehouse",
+    records: list | None = None,
+) -> str:
+    """Ingest a configured source into Bronze.
+
+    ``records`` switches the runner into lookup mode: instead of walking pages it
+    performs one request per supplied value, using the ``lookup:`` section of the
+    source config. That is what identifier-resolution APIs need — they answer
+    about one name at a time and have nothing to paginate.
+    """
     cfg = load_source_config(config_path)
     source = cfg["source_name"]
     progress("INGEST", "Source configuration loaded", source=source, catalog=catalog)
+
+    if records is not None:
+        return _ingest_lookups(spark, cfg, catalog, records)
 
     # metadata is data: every run is recorded in a control table
     run_id = start_run(spark, catalog, pipeline_name=f"ingest_{source}", source_name=source)
@@ -286,3 +364,54 @@ def ingest(spark: SparkSession, config_path: str, catalog: str = "dev_lakehouse"
         raise
 
     return run_id
+
+
+def _ingest_lookups(
+    spark: SparkSession,
+    cfg: dict,
+    catalog: str,
+    records: list,
+) -> str:
+    """Lookup-mode ingestion: one request per value, recorded in Bronze."""
+    source = cfg["source_name"]
+    if "lookup" not in cfg:
+        raise ValueError(f"source '{source}' needs a lookup: section to ingest records")
+
+    run_id = start_run(spark, catalog, pipeline_name=f"ingest_{source}", source_name=source)
+    progress("INGEST", "Lookup run opened", run_id=run_id, values=len(records))
+
+    rate_cfg = cfg.get("rate_limit", {})
+    rate_limiter = (
+        RateLimiter(float(rate_cfg["requests_per_second"]))
+        if rate_cfg.get("requests_per_second")
+        else None
+    )
+    client = _rest_client(cfg, rate_limiter)
+    target = _target_name(
+        catalog,
+        cfg.get("destination", {}).get("bronze_table", f"bronze.{source}_records"),
+    )
+
+    try:
+        rows = _lookup_rows(
+            client,
+            cfg,
+            list(records),
+            source=source,
+            run_id=run_id,
+            batch_id=str(uuid.uuid4()),
+            ingested_at=datetime.now(timezone.utc),
+            schema_version=str(cfg.get("schema_version", "v1")),
+        )
+        _commit_bronze_page(spark, target, rows)
+        resolved = sum(1 for row in rows if row["http_status"] == 200)
+        finish_run(
+            spark, catalog, run_id, status="success",
+            read=len(rows), written=len(rows),
+            rejected=len(rows) - resolved,
+        )
+        progress("INGEST", "Lookup run completed", resolved=resolved, total=len(rows))
+        return run_id
+    except Exception as error:  # noqa: BLE001 - record the failure, then re-raise
+        finish_run(spark, catalog, run_id, status="failed", error=str(error))
+        raise

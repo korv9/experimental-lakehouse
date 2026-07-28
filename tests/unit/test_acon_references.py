@@ -23,7 +23,9 @@ IDS = [str(path.relative_to(ROOT)) for path in ACONS]
 
 # Readers and writers read_input/write_output implement. Listed explicitly so an
 # accidental removal shows up here instead of at runtime.
-SUPPORTED_READERS = {"unity_catalog_table", "json", "json_records", "text", "product_callable"}
+SUPPORTED_READERS = {
+    "unity_catalog_table", "json", "json_records", "csv_records", "text", "product_callable",
+}
 SUPPORTED_WRITERS = {"delta_table", "delta_merge"}
 
 

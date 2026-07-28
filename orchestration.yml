@@ -107,6 +107,55 @@ resources:
         - job_cluster_key: shared
           new_cluster: ${var.job_cluster}
 
+    # ---------------------------------------------------------- drug_synergy --
+    # DrugComb screens + PubChem structures + DepMap omics -> synergy star.
+    # PubChem runs after the first Silver pass because it only resolves drugs
+    # that actually appear in the screens; Silver then reruns to pick up the
+    # structures and fingerprints.
+    # Requires rdkit as a cluster library.
+    drug_synergy_pipeline:
+      name: "[${bundle.target}] drug_synergy pipeline"
+      schedule:
+        quartz_cron_expression: "0 0 3 ? * SUN"   # weekly, Sunday 03:00 UTC
+        timezone_id: UTC
+        pause_status: PAUSED
+      tasks:
+        - task_key: land_bronze
+          notebook_task:
+            notebook_path: ./notebooks/products/drug_synergy/land_bronze.py
+          job_cluster_key: shared
+
+        - task_key: bronze_to_silver
+          depends_on:
+            - task_key: land_bronze
+          notebook_task:
+            notebook_path: ./notebooks/products/drug_synergy/bronze_to_silver.py
+          job_cluster_key: shared
+
+        - task_key: ingest_pubchem
+          depends_on:
+            - task_key: bronze_to_silver
+          notebook_task:
+            notebook_path: ./notebooks/products/drug_synergy/ingest_pubchem.py
+          job_cluster_key: shared
+
+        - task_key: silver_with_structures
+          depends_on:
+            - task_key: ingest_pubchem
+          notebook_task:
+            notebook_path: ./notebooks/products/drug_synergy/bronze_to_silver.py
+          job_cluster_key: shared
+
+        - task_key: silver_to_gold
+          depends_on:
+            - task_key: silver_with_structures
+          notebook_task:
+            notebook_path: ./notebooks/products/drug_synergy/silver_to_gold.py
+          job_cluster_key: shared
+      job_clusters:
+        - job_cluster_key: shared
+          new_cluster: ${var.job_cluster}
+
     # ------------------------------------------------- philosophy_litterature --
     # Gutenberg catalog snapshot -> normalized works -> reviewed corpus.
     # These notebooks read a `catalog` widget, so the target catalog is passed in.

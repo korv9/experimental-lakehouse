@@ -51,6 +51,26 @@ packages = [
     "products.philosophy_litterature.tables.silver",
     "products.philosophy_litterature.tables.silver.gutenberg_work",
     "products.philosophy_litterature.tables.silver.philosophy_litterature_work",
+    "products.drug_synergy",
+    "products.drug_synergy.pipelines",
+    "products.drug_synergy.experiments",
+    "products.drug_synergy.tables",
+    "products.drug_synergy.tables.bronze",
+    "products.drug_synergy.tables.bronze.drugcomb_synergy_raw",
+    "products.drug_synergy.tables.bronze.pubchem_compound_raw",
+    "products.drug_synergy.tables.bronze.depmap_model_raw",
+    "products.drug_synergy.tables.bronze.depmap_expression_raw",
+    "products.drug_synergy.tables.silver",
+    "products.drug_synergy.tables.silver.drug",
+    "products.drug_synergy.tables.silver.drug_fingerprint",
+    "products.drug_synergy.tables.silver.cell_line",
+    "products.drug_synergy.tables.silver.cell_expression",
+    "products.drug_synergy.tables.silver.drug_combination",
+    "products.drug_synergy.tables.gold",
+    "products.drug_synergy.tables.gold.dim_drug",
+    "products.drug_synergy.tables.gold.dim_cell_line",
+    "products.drug_synergy.tables.gold.dim_cancer_type",
+    "products.drug_synergy.tables.gold.fact_drug_synergy",
     "products.messy_records",
     "products.messy_records.pipelines",
     "products.messy_records.tables",
@@ -81,6 +101,9 @@ lakehouse_platform = "src/lakehouse_platform"
 products = "products"
 
 [tool.setuptools.package-data]
+"products.drug_synergy.pipelines" = ["*.yaml"]
+"products.drug_synergy.tables.silver.drug_combination" = ["*.yaml"]
+"products.drug_synergy.tables.silver.cell_line" = ["*.yaml"]
 "products.messy_records.pipelines" = ["*.yaml"]
 "products.messy_records.tables.silver.records" = ["*.yaml"]
 "products.example_works.pipelines" = ["*.yaml"]

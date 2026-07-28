@@ -34,6 +34,27 @@ def read_json_records(spark, path: str):
     return spark.createDataFrame(rows, ["raw_payload"])
 
 
+def read_csv_records(spark, options: dict):
+    """A CSV file -> one row per source row, each kept verbatim as JSON.
+
+    Unlike ``json_records`` this stays distributed, so it handles the wide,
+    multi-hundred-megabyte exports (DepMap expression has ~19,000 gene columns).
+    Every column is read as a string: Bronze must not guess types, and a source
+    that adds or renames a column should land, not fail.
+    """
+    from pyspark.sql import functions as F
+
+    path = options["path"]
+    read_options = {"header": "true", "multiLine": "true", **options.get("read_options", {})}
+    frame = spark.read.options(**read_options).csv(path)
+    progress("READER", "Loading CSV records", path=path, columns=len(frame.columns))
+    payload = F.to_json(
+        F.struct(*[F.col(f"`{column}`") for column in frame.columns]),
+        {"ignoreNullFields": "false"},
+    )
+    return frame.select(payload.alias("raw_payload"))
+
+
 def read_product_callable(spark, options: dict):
     """An input produced by product code rather than by a file or a table.
 
@@ -55,6 +76,8 @@ def read_input(spark, kind: str, options: dict):
         return spark.read.options(**options.get("read_options", {})).json(options["path"])
     if kind == "json_records":
         return read_json_records(spark, options["path"])
+    if kind == "csv_records":
+        return read_csv_records(spark, options)
     if kind == "text":
         progress("READER", "Loading text", path=options["path"])
         return spark.read.text(options["path"])

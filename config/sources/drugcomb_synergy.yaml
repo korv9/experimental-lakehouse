@@ -1,0 +1,32 @@
+# DrugComb drug-combination screening results.
+#
+# Downloaded once from https://drugcomb.org/download/ as a CSV. The portal serves
+# a full export rather than a paginated API, so this is a file source: download,
+# drop into the landing Volume, then land it verbatim into Bronze.
+#
+# NOTE: the column names below were read from the original project's BRAclean.py.
+# Verify them against your actual download before the first production run.
+
+source_name: drugcomb_synergy
+source_type: file
+format: csv
+path: datasets/drug_synergy/drugcombs_scored_sample.csv
+schema_version: v1
+
+authentication:
+  type: none
+
+expected_columns:
+  - Drug1
+  - Drug2
+  - Cell line
+  - ZIP
+  - Bliss
+  - Loewe
+  - HSA
+
+incremental:
+  enabled: false        # full export; Bronze appends one batch per download
+
+destination:
+  bronze_table: bronze.drugcomb_synergy_raw

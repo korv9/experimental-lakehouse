@@ -1,0 +1,103 @@
+pipeline:
+  id: drug_synergy_bronze_to_silver
+  owner: data-platform
+  version: 1
+  description: Clean screens, cell lines, expression, compounds and fingerprints.
+
+inputs:
+  - id: bronze_drugcomb
+    reader: unity_catalog_table
+    options:
+      table: ${catalog}.bronze.drugcomb_synergy_raw
+
+  - id: bronze_depmap_model
+    reader: unity_catalog_table
+    options:
+      table: ${catalog}.bronze.depmap_model_raw
+
+  - id: bronze_depmap_expression
+    reader: unity_catalog_table
+    options:
+      table: ${catalog}.bronze.depmap_expression_raw
+
+  - id: bronze_pubchem
+    reader: unity_catalog_table
+    options:
+      table: ${catalog}.bronze.pubchem_compound_raw
+
+transformations:
+  - id: combinations
+    input_id: bronze_drugcomb
+    callable: products.drug_synergy.tables.silver.drug_combination.transform:transform
+
+  - id: cell_lines
+    input_id: bronze_depmap_model
+    callable: products.drug_synergy.tables.silver.cell_line.transform:transform
+
+  - id: expression
+    input_id: bronze_depmap_expression
+    callable: products.drug_synergy.tables.silver.cell_expression.transform:transform
+
+  - id: drugs
+    input_id: bronze_pubchem
+    callable: products.drug_synergy.tables.silver.drug.transform:transform
+
+  - id: fingerprints
+    input_id: drugs
+    callable: products.drug_synergy.tables.silver.drug_fingerprint.transform:transform
+
+quality:
+  - id: validated_combinations
+    input_id: combinations
+    rules: ../tables/silver/drug_combination/quality.yaml
+    on_failure: quarantine
+    quarantine_table: ${catalog}.quarantine.drug_synergy_combination
+
+  - id: validated_cell_lines
+    input_id: cell_lines
+    rules: ../tables/silver/cell_line/quality.yaml
+    on_failure: quarantine
+    quarantine_table: ${catalog}.quarantine.drug_synergy_cell_line
+
+outputs:
+  - id: silver_drug_combination
+    input_id: validated_combinations
+    writer: delta_merge
+    contract: products.drug_synergy.tables.silver.drug_combination.contract:TableDefinition
+    options:
+      table: ${catalog}.silver.drug_combination
+      keys: [drug_min, drug_max, cell_line_key]
+
+  - id: silver_cell_line
+    input_id: validated_cell_lines
+    writer: delta_merge
+    contract: products.drug_synergy.tables.silver.cell_line.contract:TableDefinition
+    options:
+      table: ${catalog}.silver.cell_line
+      keys: [cell_line_key]
+
+  - id: silver_cell_expression
+    input_id: expression
+    writer: delta_merge
+    contract: products.drug_synergy.tables.silver.cell_expression.contract:TableDefinition
+    options:
+      table: ${catalog}.silver.cell_expression
+      keys: [model_id, gene_symbol]
+
+  - id: silver_drug
+    input_id: drugs
+    writer: delta_merge
+    contract: products.drug_synergy.tables.silver.drug.contract:TableDefinition
+    options:
+      table: ${catalog}.silver.drug
+      keys: [drug_name]
+
+  - id: silver_drug_fingerprint
+    input_id: fingerprints
+    writer: delta_merge
+    contract: products.drug_synergy.tables.silver.drug_fingerprint.contract:TableDefinition
+    options:
+      table: ${catalog}.silver.drug_fingerprint
+      keys: [drug_name]
+
+post_actions: []
