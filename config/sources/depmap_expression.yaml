@@ -1,6 +1,7 @@
-# DepMap RNA expression (OmicsExpressionTPMLogp1HumanProteinCodingGenes.csv).
+# DepMap RNA expression (OmicsExpressionProteinCodingGenesTPMLogp1.csv in 24Q2).
 #
-# Source: https://depmap.org/portal/download/. A wide matrix: one row per cell
+# Source: https://depmap.org/portal/download/all/ — see
+# docs/runbooks/drug_synergy_downloads.md. A wide matrix: one row per cell
 # line (ModelID) and one column per gene, values are log1p(TPM). Silver unpivots
 # it to long format so Delta can store and filter it efficiently.
 #

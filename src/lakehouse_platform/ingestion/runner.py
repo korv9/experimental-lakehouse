@@ -15,9 +15,12 @@ import json
 import math
 import uuid
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 import yaml
-from pyspark.sql import SparkSession
+
+if TYPE_CHECKING:  # SparkSession is only an annotation here, so keep the module
+    from pyspark.sql import SparkSession  # importable (and testable) without Spark
 
 from lakehouse_platform.ingestion.authentication.none import NoAuth
 from lakehouse_platform.ingestion.clients.rest import RestClient
