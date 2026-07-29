@@ -158,6 +158,29 @@ resources:
         - job_cluster_key: shared
           new_cluster: ${var.job_cluster}
 
+    # -------------------------------------------------------- fashion_demand --
+    # H&M transactions -> daily demand fact -> feature table -> forecast.
+    # Only the feature step exists so far; the Bronze-to-Gold tasks are added
+    # once the Kaggle export is on disk and its column names are confirmed.
+    # Feature builds and training are separate jobs on purpose: features are
+    # rebuilt daily, models are retrained on a much slower cadence.
+    fashion_demand_pipeline:
+      name: "[${bundle.target}] fashion_demand pipeline"
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"   # 06:00 UTC daily, after Gold
+        timezone_id: UTC
+        pause_status: PAUSED                    # unpause once Gold is populated
+      tasks:
+        - task_key: gold_to_features
+          notebook_task:
+            notebook_path: ./notebooks/products/fashion_demand/gold_to_features.py
+            base_parameters:
+              catalog: ${var.catalog}
+          job_cluster_key: shared
+      job_clusters:
+        - job_cluster_key: shared
+          new_cluster: ${var.job_cluster}
+
     # ------------------------------------------------- philosophy_litterature --
     # Gutenberg catalog snapshot -> normalized works -> reviewed corpus.
     # These notebooks read a `catalog` widget, so the target catalog is passed in.

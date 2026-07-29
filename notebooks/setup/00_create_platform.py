@@ -11,6 +11,7 @@ from lakehouse_platform.metadata.unity_catalog import (
     UnityCatalogLayout,
     create_unity_catalog_objects,
 )
+from lakehouse_platform.ml.registry import create_ml_tables
 
 CATALOG = "dev_lakehouse"
 spark = SparkSession.builder.getOrCreate()
@@ -18,6 +19,7 @@ spark = SparkSession.builder.getOrCreate()
 layout = UnityCatalogLayout(CATALOG)
 create_unity_catalog_objects(spark, layout, create_catalog=True)
 create_platform_tables(spark, CATALOG)
+create_ml_tables(spark, CATALOG)
 print(f"[SETUP] Platform ready: {CATALOG}")
 print(f"[SETUP] Raw files: {layout.source_path('shared')}")
 print(f"[SETUP] Checkpoints: {layout.checkpoint_path('shared')}")

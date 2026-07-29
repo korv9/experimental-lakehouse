@@ -44,6 +44,7 @@ unused abstractions.
 │       ├── ingestion/            # REST, downloads, rate limits and pagination
 │       ├── io/                   # Readers and Delta writers
 │       ├── metadata/             # Unity Catalog layout, state and watermarks
+│       ├── ml/                   # Features, splits, metrics, model registry
 │       ├── observability/        # Progress events and logging
 │       ├── quality/              # The single rule-driven quality gate
 │       ├── schemas/              # Base table-contract machinery
@@ -60,6 +61,11 @@ unused abstractions.
 │   ├── messy_records/
 │   │   ├── pipelines/
 │   │   └── tables/
+│   ├── drug_synergy/             # DrugComb + PubChem + DepMap synergy star
+│   ├── fashion_demand/           # Demand forecasting — the ML reference product
+│   │   ├── pipelines/
+│   │   ├── tables/               # ...including tables/feature/
+│   │   └── ml/                   # Baselines, dataset split, training
 │   └── philosophy_litterature/    # Contracts + runnable product notebooks
 ├── notebooks/
 │   ├── setup/                    # One-time platform setup
@@ -90,6 +96,27 @@ notebooks          = shared setup and existing ACON/demo entrypoints
 
 The research-product backlog and candidate future products are maintained in
 [`IDEAS.md`](IDEAS.md). The first planned product is `philosophy_litterature`.
+
+## Layers
+
+```text
+landing → bronze → silver → gold ─┬─→ BI, dashboards, ad hoc SQL
+                                  │
+                                  ├─→ feature ──→ training ──→ ml
+                                  │                            │
+                                  └────── ml.predictions ──────┘
+```
+
+The ML layer sits **beside** Gold, not above it: `feature` holds model inputs
+derived from Gold, `ml` holds predictions scored back into the lakehouse. It is
+not a fourth medallion tier, because features are not more refined than Gold —
+they are Gold reshaped for one model at one horizon, and they belong in a schema
+that can be dropped and rebuilt without touching the reporting layer.
+
+Feature engineering runs through the ordinary ACON engine and gets the ordinary
+contract check, quality gate and run logging. The reasoning, and the three
+leakage mistakes the layout is built to prevent, are in
+[`docs/architecture/ml_layer.md`](docs/architecture/ml_layer.md).
 
 ## ACON
 

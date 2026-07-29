@@ -25,6 +25,10 @@ class UnityCatalogLayout:
     bronze_schema: str = "bronze"
     silver_schema: str = "silver"
     gold_schema: str = "gold"
+    # The ML layer sits beside Gold, not above it: `feature` holds model inputs
+    # derived from Gold, `ml` holds model outputs scored back into the lakehouse.
+    feature_schema: str = "feature"
+    ml_schema: str = "ml"
     quarantine_schema: str = "quarantine"
     sandbox_schema: str = "sandbox"
     source_files_volume: str = "source_files"
@@ -42,6 +46,8 @@ class UnityCatalogLayout:
             self.bronze_schema,
             self.silver_schema,
             self.gold_schema,
+            self.feature_schema,
+            self.ml_schema,
             self.quarantine_schema,
             self.sandbox_schema,
         )

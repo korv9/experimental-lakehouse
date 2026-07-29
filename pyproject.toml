@@ -35,6 +35,7 @@ packages = [
     "lakehouse_platform.ingestion.clients",
     "lakehouse_platform.ingestion.pagination",
     "lakehouse_platform.metadata",
+    "lakehouse_platform.ml",
     "lakehouse_platform.observability",
     "lakehouse_platform.post_actions",
     "lakehouse_platform.quality",
@@ -94,6 +95,14 @@ packages = [
     "products.example_works.tables.gold.dim_category",
     "products.example_works.tables.gold.dim_date",
     "products.example_works.tables.gold.fact_work",
+    "products.fashion_demand",
+    "products.fashion_demand.ml",
+    "products.fashion_demand.pipelines",
+    "products.fashion_demand.tables",
+    "products.fashion_demand.tables.gold",
+    "products.fashion_demand.tables.gold.fact_daily_demand",
+    "products.fashion_demand.tables.feature",
+    "products.fashion_demand.tables.feature.demand_features",
 ]
 
 [tool.setuptools.package-dir]
@@ -110,6 +119,8 @@ products = "products"
 "products.example_works.tables.silver.works" = ["*.yaml"]
 "products.philosophy_litterature" = ["*.yaml"]
 "products.philosophy_litterature.pipelines" = ["*.yaml"]
+"products.fashion_demand.pipelines" = ["*.yaml"]
+"products.fashion_demand.tables.feature.demand_features" = ["*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
