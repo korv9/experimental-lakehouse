@@ -31,7 +31,6 @@ class TableDefinition(BaseSchema):
     units_sold: Bigint
     gross_revenue: Double
     mean_unit_price: Double | None
-    transaction_count: Bigint
     customer_count: Bigint
     loaded_at: datetime
 
@@ -59,7 +58,6 @@ class TableDefinition(BaseSchema):
                 "Non-additive: revenue / units. Null on zero-demand days. "
                 "Feature layer may only use this lagged."
             ),
-            "transaction_count": "Additive measure: number of transaction lines.",
             "customer_count": (
                 "Semi-additive: distinct customers that day. Do not sum across days."
             ),

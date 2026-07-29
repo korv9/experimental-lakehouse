@@ -27,7 +27,7 @@ inputs:
 transformations:
   - id: drugcomb_rows
     input_id: drugcomb_file
-    callable: products.drug_synergy.tables.bronze.landing:land
+    callable: lakehouse_platform.transforms.landing:land
     options:
       source_name: drugcomb_synergy
       source_file: ${drugcomb_file}
@@ -36,7 +36,7 @@ transformations:
 
   - id: depmap_model_rows
     input_id: depmap_model_file
-    callable: products.drug_synergy.tables.bronze.landing:land
+    callable: lakehouse_platform.transforms.landing:land
     options:
       source_name: depmap_model
       source_file: ${depmap_model_file}
@@ -45,7 +45,7 @@ transformations:
 
   - id: depmap_expression_rows
     input_id: depmap_expression_file
-    callable: products.drug_synergy.tables.bronze.landing:land
+    callable: lakehouse_platform.transforms.landing:land
     options:
       source_name: depmap_expression
       source_file: ${depmap_expression_file}

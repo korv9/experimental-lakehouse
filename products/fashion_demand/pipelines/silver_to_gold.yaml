@@ -1,0 +1,58 @@
+pipeline:
+  id: fashion_demand_silver_to_gold
+  owner: data-platform
+  version: 1
+  description: >
+    Aggregate transaction lines into the daily demand fact and build the article
+    dimension.
+
+    The fact is densified: every calendar day between a series' first and last
+    sale becomes a row, with units_sold = 0 where nothing sold. Without that the
+    model never sees a zero and systematically overstocks — and every lag and
+    rolling window reaches further back for slow-moving articles than for fast
+    ones.
+
+    min_total_units restricts the panel to series above a lifetime volume. The
+    full panel is ~105k articles across two channels and two years; set it to a
+    few hundred to make a local Spark session finish, and to 0 on a cluster.
+
+inputs:
+  - id: silver_transactions
+    reader: unity_catalog_table
+    options:
+      table: ${catalog}.silver.transactions
+
+  - id: silver_articles
+    reader: unity_catalog_table
+    options:
+      table: ${catalog}.silver.articles
+
+transformations:
+  - id: daily_demand
+    input_id: silver_transactions
+    callable: products.fashion_demand.tables.gold.fact_daily_demand.transform:transform
+    options:
+      min_total_units: 0
+
+  - id: article_dimension
+    input_id: silver_articles
+    callable: products.fashion_demand.tables.gold.dim_article.transform:transform
+
+outputs:
+  - id: gold_dim_article
+    input_id: article_dimension
+    writer: delta_merge
+    contract: products.fashion_demand.tables.gold.dim_article.contract:TableDefinition
+    options:
+      table: ${catalog}.gold.dim_article
+      keys: [article_key]
+
+  - id: gold_fact_daily_demand
+    input_id: daily_demand
+    writer: delta_merge
+    contract: products.fashion_demand.tables.gold.fact_daily_demand.contract:TableDefinition
+    options:
+      table: ${catalog}.gold.fact_daily_demand
+      keys: [article_id, sales_channel_id, demand_date]
+
+post_actions: []

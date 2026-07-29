@@ -1,8 +1,14 @@
-"""Shared landing step for this product's file sources.
+"""The platform's landing step: raw records -> a Bronze row with lineage.
 
-DrugComb, DepMap Model and DepMap expression differ only in which fields make up
-the source record id, so they share one callable and vary by ACON options rather
-than by three near-identical modules.
+Every file-based source lands the same way — keep the payload verbatim, stamp
+it with where it came from and when, and derive a source record id from whichever
+payload fields identify a row. Sources differ only in those id fields, so they
+share one callable and vary by ACON options rather than by one near-identical
+module per product.
+
+Bronze deliberately does not type anything. A source that renames or adds a
+column must land, not fail; disagreements with the expected shape are Silver's
+job to catch, where they can be quarantined and counted.
 
 Options:
     source_name    value for the source_name column
@@ -25,7 +31,7 @@ def land(raw: DataFrame, options: dict | None = None) -> DataFrame:
     source_name = options["source_name"]
     id_fields = options.get("id_fields") or []
     batch_id = options.get("batch_id") or str(uuid.uuid4())
-    progress("DRUG_SYNERGY", "Landing raw rows", source=source_name, batch_id=batch_id)
+    progress("LANDING", "Landing raw rows", source=source_name, batch_id=batch_id)
 
     if id_fields:
         parts = [F.get_json_object("raw_payload", f"$['{field}']") for field in id_fields]

@@ -160,18 +160,48 @@ resources:
 
     # -------------------------------------------------------- fashion_demand --
     # H&M transactions -> daily demand fact -> feature table -> forecast.
-    # Only the feature step exists so far; the Bronze-to-Gold tasks are added
-    # once the Kaggle export is on disk and its column names are confirmed.
-    # Feature builds and training are separate jobs on purpose: features are
-    # rebuilt daily, models are retrained on a much slower cadence.
+    # The landing task reads a CSV export that must already be in the landing
+    # Volume: Kaggle needs an authenticated account, so no job can fetch it.
+    # Land once, then run the rest.
+    #
+    # Training is deliberately not a task here. Features are rebuilt daily;
+    # models are retrained on a much slower cadence and against explicit folds,
+    # so they belong in a separate job rather than at the end of this chain.
     fashion_demand_pipeline:
       name: "[${bundle.target}] fashion_demand pipeline"
       schedule:
-        quartz_cron_expression: "0 0 6 * * ?"   # 06:00 UTC daily, after Gold
+        quartz_cron_expression: "0 0 6 * * ?"   # 06:00 UTC daily
         timezone_id: UTC
-        pause_status: PAUSED                    # unpause once Gold is populated
+        pause_status: PAUSED                    # unpause once the export is landed
       tasks:
+        - task_key: land_bronze
+          notebook_task:
+            notebook_path: ./notebooks/products/fashion_demand/land_bronze.py
+            base_parameters:
+              catalog: ${var.catalog}
+          job_cluster_key: shared
+
+        - task_key: bronze_to_silver
+          depends_on:
+            - task_key: land_bronze
+          notebook_task:
+            notebook_path: ./notebooks/products/fashion_demand/bronze_to_silver.py
+            base_parameters:
+              catalog: ${var.catalog}
+          job_cluster_key: shared
+
+        - task_key: silver_to_gold
+          depends_on:
+            - task_key: bronze_to_silver
+          notebook_task:
+            notebook_path: ./notebooks/products/fashion_demand/silver_to_gold.py
+            base_parameters:
+              catalog: ${var.catalog}
+          job_cluster_key: shared
+
         - task_key: gold_to_features
+          depends_on:
+            - task_key: silver_to_gold
           notebook_task:
             notebook_path: ./notebooks/products/fashion_demand/gold_to_features.py
             base_parameters:

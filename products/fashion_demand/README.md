@@ -16,17 +16,17 @@ README is what you need to run it.
 
 | Layer | State |
 |---|---|
-| `feature.demand_features` + its ACON, contract, quality rules | **built** |
-| `gold.fact_daily_demand` contract | **built** |
+| Bronze → Silver → Gold → feature, all four ACONs | **built** |
+| Contracts, quality rules, notebooks, job chain | **built** |
 | Baselines, metrics, splits, model registry | **built and tested in CI** |
-| Bronze → Silver → Gold | **not built** — needs the download first |
 | Model training, tuning, SHAP | **not built** |
 
-The gap is deliberate rather than unfinished. Gold is a modelling decision and
-could be designed now; Bronze and Silver depend on the source's exact column
-names, and inventing those from memory is how the DrugComb port nearly shipped a
-pipeline against columns that do not exist. Download the data, look at the
-header row, then write them.
+**Nothing here has been executed against Spark.** pyspark could not be installed
+in the environment these files were written in, so the transformations are held
+in place by tests that check the agreements between files — contracts against
+transforms, merge keys against grain, each stage's inputs against the previous
+stage's outputs — not by a run. Expect to fix things on the first real run, and
+treat the column names below as claims to verify rather than facts.
 
 ## The data
 
@@ -89,27 +89,53 @@ between a model and a plausible-looking one.
 
 ```text
 products/fashion_demand/
-├── pipelines/
-│   ├── land_bronze.yaml            (todo)
-│   ├── bronze_to_silver.yaml       (todo)
-│   ├── silver_to_gold.yaml         (todo)
-│   └── gold_to_features.yaml       ← built
-├── tables/
-│   ├── bronze/hm_transactions_raw/ (todo)
-│   ├── silver/transactions/        (todo)
+├── pipelines/                       one ACON per medallion hop
+│   ├── land_bronze.yaml
+│   ├── bronze_to_silver.yaml
+│   ├── silver_to_gold.yaml
+│   └── gold_to_features.yaml        the ML layer's entry point
+├── tables/                          one folder per physical table
+│   ├── bronze/
+│   │   ├── hm_transactions_raw/     contract only — Bronze types nothing
+│   │   └── hm_articles_raw/
+│   ├── silver/
+│   │   ├── transactions/            contract, transform, quality rules
+│   │   └── articles/
 │   ├── gold/
-│   │   ├── dim_article/            (todo)
-│   │   ├── dim_customer/           (todo)
-│   │   ├── dim_date/               (todo)
-│   │   └── fact_daily_demand/      ← contract built
+│   │   ├── fact_daily_demand/       the densified panel
+│   │   └── dim_article/
 │   └── feature/
-│       └── demand_features/        ← built: contract, transform, quality rules
+│       └── demand_features/         the supervised training table
 └── ml/
-    ├── baselines.py                ← built and tested
-    ├── dataset.py                  ← built: split, leakage guard, hand-off to pandas
-    ├── train.py                    (todo) LightGBM against the baselines
-    └── explain.py                  (todo) SHAP over the trained model
+    ├── baselines.py                 seasonal naive, last observed, moving average
+    ├── dataset.py                   split, leakage guard, hand-off to pandas
+    ├── train.py                     (todo) LightGBM against the baselines
+    └── explain.py                   (todo) SHAP over the trained model
 ```
+
+`customers.csv` is not landed. The demand grain is article x channel x day, so
+customer attributes have nowhere to attach — they matter for the recommendation
+variant of this dataset, not for forecasting. `dim_date` is not built either:
+the calendar features live in the feature table, and a date dimension only earns
+its place once BI queries need it.
+
+## Running it
+
+```bash
+databricks bundle run fashion_demand_pipeline -t dev
+```
+
+Or notebook by notebook, in order — `land_bronze`, `bronze_to_silver`,
+`silver_to_gold`, `gold_to_features`. The landing notebook expects the CSVs
+already in the landing Volume; it does not fetch them, because the Kaggle export
+needs an authenticated account and there is no URL a job could pull from.
+
+**On a laptop, set `min_total_units` first.** The full panel is ~105k articles
+across two channels and two years of days. Densification multiplies rows by the
+length of each series, so the fact can reach tens of millions of rows before the
+feature table is even built. The option is in `silver_to_gold.yaml`; a few
+hundred restricts it to articles with real volume, which is also the segment a
+forecast is worth having for.
 
 ## Running the model work
 

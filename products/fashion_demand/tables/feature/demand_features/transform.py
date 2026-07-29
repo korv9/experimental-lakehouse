@@ -133,6 +133,6 @@ def _select(df: DataFrame) -> DataFrame:
     )
 
 
-def transform(df: DataFrame) -> DataFrame:
+def transform(df: DataFrame, options: dict | None = None) -> DataFrame:
     """Gold demand fact -> one supervised row per article, channel and day."""
     return _select(_label(_calendar(_price(_history(df)))))

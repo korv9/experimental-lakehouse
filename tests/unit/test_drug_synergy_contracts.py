@@ -92,4 +92,4 @@ def test_bronze_tables_are_append_only():
 def test_landing_reuses_one_callable_for_every_file_source():
     """Config over duplication: three sources, one transformation."""
     callables = {step["callable"] for step in _acon("land_bronze.yaml")["transformations"]}
-    assert callables == {"products.drug_synergy.tables.bronze.landing:land"}
+    assert callables == {"lakehouse_platform.transforms.landing:land"}

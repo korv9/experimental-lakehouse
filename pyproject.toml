@@ -99,8 +99,15 @@ packages = [
     "products.fashion_demand.ml",
     "products.fashion_demand.pipelines",
     "products.fashion_demand.tables",
+    "products.fashion_demand.tables.bronze",
+    "products.fashion_demand.tables.bronze.hm_transactions_raw",
+    "products.fashion_demand.tables.bronze.hm_articles_raw",
+    "products.fashion_demand.tables.silver",
+    "products.fashion_demand.tables.silver.transactions",
+    "products.fashion_demand.tables.silver.articles",
     "products.fashion_demand.tables.gold",
     "products.fashion_demand.tables.gold.fact_daily_demand",
+    "products.fashion_demand.tables.gold.dim_article",
     "products.fashion_demand.tables.feature",
     "products.fashion_demand.tables.feature.demand_features",
 ]
@@ -121,6 +128,7 @@ products = "products"
 "products.philosophy_litterature.pipelines" = ["*.yaml"]
 "products.fashion_demand.pipelines" = ["*.yaml"]
 "products.fashion_demand.tables.feature.demand_features" = ["*.yaml"]
+"products.fashion_demand.tables.silver.transactions" = ["*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

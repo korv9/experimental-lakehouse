@@ -30,7 +30,14 @@ SUPPORTED_WRITERS = {"delta_table", "delta_merge"}
 
 
 def _module_path(module: str) -> Path:
-    return ROOT / (module.replace(".", "/") + ".py")
+    """Resolve a dotted module to a file, honouring the src layout.
+
+    Products live at the repository root; the platform lives under ``src/``. An
+    ACON may reference either, so both roots are tried.
+    """
+    relative = module.replace(".", "/") + ".py"
+    candidates = [ROOT / relative, ROOT / "src" / relative]
+    return next((path for path in candidates if path.is_file()), candidates[0])
 
 
 def _top_level_names(path: Path) -> set[str]:
@@ -54,6 +61,21 @@ def assert_reference_exists(reference: str, source: Path) -> None:
     assert attribute in _top_level_names(path), (
         f"{source}: '{attribute}' does not exist in {module}"
     )
+
+
+def _function_signature(reference: str, source: Path) -> ast.arguments:
+    module, _, attribute = reference.partition(":")
+    tree = ast.parse(_module_path(module).read_text(encoding="utf-8"))
+    node = next(
+        (
+            item for item in tree.body
+            if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef)
+            and item.name == attribute
+        ),
+        None,
+    )
+    assert node is not None, f"{source}: '{attribute}' is not a function in {module}"
+    return node.args
 
 
 def _import_or_skip(reference: str):
@@ -87,6 +109,26 @@ def test_every_reference_points_at_real_code(path):
     for spec in acon.outputs:
         if spec.contract:
             assert_reference_exists(spec.contract, path)
+
+
+@pytest.mark.parametrize("path", ACONS, ids=IDS)
+def test_every_transformation_accepts_the_options_the_engine_passes(path):
+    """The engine always calls ``transform(frame, options)``.
+
+    A transformation written as ``transform(df)`` imports cleanly, passes every
+    reference check, and then raises TypeError the first time it runs on a
+    cluster. Checking the arity here is the difference between a failed test and
+    a failed 03:00 job.
+    """
+    for spec in Acon.from_yaml(path).transformations:
+        arguments = _function_signature(spec.callable, path)
+        positional = [argument.arg for argument in arguments.posonlyargs + arguments.args]
+        frames = len(spec.input_ids) if spec.input_ids else 1
+        required = frames + 1  # the frames, then options
+        assert len(positional) >= required or arguments.vararg, (
+            f"{path}: {spec.callable} takes {positional}, but the engine calls it "
+            f"with {frames} frame(s) plus options"
+        )
 
 
 @pytest.mark.parametrize("path", ACONS, ids=IDS)
