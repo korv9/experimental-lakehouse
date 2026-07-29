@@ -48,7 +48,9 @@ resources:
           new_cluster: ${var.job_cluster}
 
     # -------------------------------------------------------- example_works --
-    # API -> Bronze -> Silver -> Kimball Gold -> experiment aggregation.
+    # Reference dataset, not a real product: the fictional feed that exercises
+    # the full medallion path. Its ingest task points at a non-existent API, so
+    # run the later tasks against the checked-in sample instead.
     example_works_pipeline:
       name: "[${bundle.target}] example_works pipeline"
       schedule:

@@ -1,7 +1,12 @@
 # Example Works pipeline walkthrough
 
-The checked-in API response is the reference dataset for both local execution
-and the Databricks/Spark implementation.
+**Example Works is a reference dataset, not a real data product.** The API
+response is invented; the pipeline exists to demonstrate and test the full
+medallion path. Read it as the reference implementation that `drug_synergy` and
+`philosophy_litterature` follow.
+
+The checked-in response drives both local execution and the Databricks/Spark
+implementation.
 
 ```text
 sample_response.json

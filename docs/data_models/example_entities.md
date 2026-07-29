@@ -1,5 +1,8 @@
 # Example Works data model
 
+**Reference dataset, not a real data product.** The values are invented; the
+model exists to show how a fact and its dimensions should be split.
+
 ## Bronze
 
 `bronze.example_data_records` preserves each raw API record plus source,

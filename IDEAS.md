@@ -156,6 +156,62 @@ Tables are addressed by their three-part Unity Catalog name.
 - The dashboard never displays a trend without document, author, source and
   language coverage.
 
+## Platform portability: a Microsoft Fabric backend
+
+The README claims the architecture is transferable to other lakehouse platforms.
+That claim is currently untested. Adding a Fabric backend would prove it, and
+the proof is the point — the valuable statement is "the same transformations ran
+on both", not "there is a fabric/ folder".
+
+**Only add this once a product runs end to end on Databricks.** An unexercised
+second backend is worth less than nothing: it undermines the parts that do work.
+
+### What already ports unchanged
+
+Everything above the storage boundary is plain PySpark and Python:
+
+- the ACON graph model, loader and engine
+- contracts (`schemas/base.py`, `schemas/types.py`) and the contract gate
+- the quality engine and every product `quality.yaml`
+- every `transform.py` — they are `DataFrame -> DataFrame` by design
+- the Kimball models and the whole test suite
+
+### What needs a Fabric implementation
+
+| Databricks | Fabric | Notes |
+| --- | --- | --- |
+| `metadata/unity_catalog.py` | Workspace → Lakehouse | the real work; a sibling `metadata/fabric.py` |
+| Catalog → Schema → Table | Lakehouse → Schema → Table | `uc_read` already accepts two-part names |
+| Managed Volumes | OneLake `Files/` | landing and checkpoint paths |
+| `databricks.yml` + Asset Bundles | Fabric CLI / `fabric-cicd` / Deployment Pipelines | orchestration only |
+| Workflows | Data Pipelines or scheduled notebooks | `orchestration.yml` equivalent |
+
+`io/writers.py` is expected to need little or no change: Fabric Lakehouse is
+Delta natively, so `saveAsTable` and `DeltaTable.merge` should work. Expected is
+not verified — treat it as the first thing to test, not an assumption.
+
+### Suggested scope
+
+1. `config/environments/fabric.yaml` beside `dev.yaml`.
+2. `metadata/fabric.py` implementing the same layout contract as
+   `unity_catalog.py`, so `00_create_platform` can target either.
+3. Run **messy_records** end to end in Fabric — it is self-contained, needs no
+   external API, and asserts fixed row counts, so success is unambiguous.
+4. Record the result in the README next to the Databricks run.
+
+### Getting capacity
+
+- **Azure free account** — $200 credit; provision the smallest capacity (F2) and
+  **pause it** when not running. Most predictable option, since consumption is
+  under your control.
+- **Fabric trial** — 60 days, usually requires a work or school account.
+  Availability has changed repeatedly; verify current terms before planning
+  around it.
+- A Fabric-enabled work tenant, if policy permits personal portfolio work.
+
+The capacity can be paused the day after the run. The evidence in the README
+stays.
+
 ## Candidate future data products
 
 ### Political Speeches

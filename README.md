@@ -51,7 +51,7 @@ unused abstractions.
 │       ├── tools/                # API explorer and developer utilities
 │       └── post_actions/         # OPTIMIZE and VACUUM
 ├── products/
-│   ├── example_works/
+│   ├── example_works/            # Reference dataset (fixture), not a real product
 │   │   ├── pipelines/            # Product ACONs
 │   │   ├── tables/               # One folder per physical table
 │   │   ├── experiments/          # Tested analytical experiments
@@ -453,18 +453,31 @@ Install the project:
 python -m pip install -e ".[dev]"
 ```
 
-Run validation:
+Run validation — one command, the same one CI runs:
 
-```powershell
-$env:PYTHONPATH='src;.'
-python -m products.example_works.local.reference_pipeline
-pytest
-ruff check .
-python -m build
+```bash
+python ci_check.py
 ```
 
-Tests that require a Spark or Delta runtime skip themselves when the required
-runtime is unavailable.
+It runs `ruff check .` and the full test suite, prints one summary and exits
+non-zero if anything failed, so "green locally" and "green in CI" cannot drift
+apart. The tests themselves stay split across `tests/` — what is unified is the
+entry point, not the test files.
+
+Tests that require a Spark or Delta runtime skip themselves when the runtime is
+unavailable, which keeps the fast path fast. For the CI job that does install
+pyspark, add `--require-spark` to turn those skips into a failure:
+
+```bash
+python ci_check.py --require-spark
+```
+
+The remaining checks are run separately when needed:
+
+```bash
+python -m products.example_works.local.reference_pipeline   # Spark-free star schema
+python -m build                                             # packaging
+```
 
 ## Current scope and roadmap
 
