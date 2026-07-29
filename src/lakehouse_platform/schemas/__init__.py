@@ -1,1 +1,0 @@
-"""Declarative table contracts."""

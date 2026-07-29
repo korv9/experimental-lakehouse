@@ -1,150 +1,31 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=74"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "experimental-lakehouse"
+name = "example-works-data-product"
 version = "0.1.0"
-description = "A reusable cloud-based lakehouse platform for ingesting, transforming, validating and exploring open, experimental and niche datasets."
+description = "A minimal medallion data product powered by adidas Lakehouse Engine."
 readme = "README.md"
-requires-python = ">=3.10"
-license = { text = "MIT" }
+requires-python = ">=3.12"
 dependencies = [
-    "pyspark>=3.5",
-    "delta-spark>=3.1",
-    "pyyaml>=6.0",
-    "requests>=2.31",
+    "lakehouse-engine[dq,sharepoint]==2.1.1",
 ]
-
-[project.scripts]
-lakehouse-api = "lakehouse_platform.tools.api_explorer:main"
 
 [project.optional-dependencies]
 dev = [
+    "lakehouse-engine[os]==2.1.1",
     "pytest>=8.0",
     "ruff>=0.4",
 ]
 
-[tool.setuptools]
-packages = [
-    "lakehouse_platform",
-    "lakehouse_platform.core",
-    "lakehouse_platform.io",
-    "lakehouse_platform.ingestion",
-    "lakehouse_platform.ingestion.authentication",
-    "lakehouse_platform.ingestion.clients",
-    "lakehouse_platform.ingestion.pagination",
-    "lakehouse_platform.metadata",
-    "lakehouse_platform.ml",
-    "lakehouse_platform.observability",
-    "lakehouse_platform.post_actions",
-    "lakehouse_platform.quality",
-    "lakehouse_platform.schemas",
-    "lakehouse_platform.transforms",
-    "lakehouse_platform.tools",
-    "products",
-    "products.philosophy_litterature",
-    "products.philosophy_litterature.notebooks",
-    "products.philosophy_litterature.pipelines",
-    "products.philosophy_litterature.tables",
-    "products.philosophy_litterature.tables.bronze",
-    "products.philosophy_litterature.tables.bronze.gutenberg_catalog_raw",
-    "products.philosophy_litterature.tables.silver",
-    "products.philosophy_litterature.tables.silver.gutenberg_work",
-    "products.philosophy_litterature.tables.silver.philosophy_litterature_work",
-    "products.drug_synergy",
-    "products.drug_synergy.pipelines",
-    "products.drug_synergy.experiments",
-    "products.drug_synergy.tables",
-    "products.drug_synergy.tables.bronze",
-    "products.drug_synergy.tables.bronze.drugcomb_synergy_raw",
-    "products.drug_synergy.tables.bronze.pubchem_compound_raw",
-    "products.drug_synergy.tables.bronze.depmap_model_raw",
-    "products.drug_synergy.tables.bronze.depmap_expression_raw",
-    "products.drug_synergy.tables.silver",
-    "products.drug_synergy.tables.silver.drug",
-    "products.drug_synergy.tables.silver.drug_fingerprint",
-    "products.drug_synergy.tables.silver.cell_line",
-    "products.drug_synergy.tables.silver.cell_expression",
-    "products.drug_synergy.tables.silver.drug_combination",
-    "products.drug_synergy.tables.gold",
-    "products.drug_synergy.tables.gold.dim_drug",
-    "products.drug_synergy.tables.gold.dim_cell_line",
-    "products.drug_synergy.tables.gold.dim_cancer_type",
-    "products.drug_synergy.tables.gold.fact_drug_synergy",
-    "products.messy_records",
-    "products.messy_records.pipelines",
-    "products.messy_records.tables",
-    "products.messy_records.tables.bronze",
-    "products.messy_records.tables.bronze.records_raw",
-    "products.messy_records.tables.silver",
-    "products.messy_records.tables.silver.records",
-    "products.example_works",
-    "products.example_works.pipelines",
-    "products.example_works.experiments",
-    "products.example_works.local",
-    "products.example_works.serving",
-    "products.example_works.tables",
-    "products.example_works.tables.bronze",
-    "products.example_works.tables.bronze.works_raw",
-    "products.example_works.tables.silver",
-    "products.example_works.tables.silver.works",
-    "products.example_works.tables.gold",
-    "products.example_works.tables.gold.dim_work",
-    "products.example_works.tables.gold.dim_author",
-    "products.example_works.tables.gold.dim_category",
-    "products.example_works.tables.gold.dim_date",
-    "products.example_works.tables.gold.fact_work",
-    "products.fashion_demand",
-    "products.fashion_demand.ml",
-    "products.fashion_demand.pipelines",
-    "products.fashion_demand.tables",
-    "products.fashion_demand.tables.bronze",
-    "products.fashion_demand.tables.bronze.hm_transactions_raw",
-    "products.fashion_demand.tables.bronze.hm_articles_raw",
-    "products.fashion_demand.tables.silver",
-    "products.fashion_demand.tables.silver.transactions",
-    "products.fashion_demand.tables.silver.articles",
-    "products.fashion_demand.tables.gold",
-    "products.fashion_demand.tables.gold.fact_daily_demand",
-    "products.fashion_demand.tables.gold.dim_article",
-    "products.fashion_demand.tables.feature",
-    "products.fashion_demand.tables.feature.demand_features",
-]
-
-[tool.setuptools.package-dir]
-lakehouse_platform = "src/lakehouse_platform"
-products = "products"
-
-[tool.setuptools.package-data]
-"products.drug_synergy.pipelines" = ["*.yaml"]
-"products.drug_synergy.tables.silver.drug_combination" = ["*.yaml"]
-"products.drug_synergy.tables.silver.cell_line" = ["*.yaml"]
-"products.messy_records.pipelines" = ["*.yaml"]
-"products.messy_records.tables.silver.records" = ["*.yaml"]
-"products.example_works.pipelines" = ["*.yaml"]
-"products.example_works.tables.silver.works" = ["*.yaml"]
-"products.philosophy_litterature" = ["*.yaml"]
-"products.philosophy_litterature.pipelines" = ["*.yaml"]
-"products.fashion_demand.pipelines" = ["*.yaml"]
-"products.fashion_demand.tables.feature.demand_features" = ["*.yaml"]
-"products.fashion_demand.tables.silver.transactions" = ["*.yaml"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["products*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = [".", "src"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
-
-[tool.ruff.lint]
-# Contract metadata intentionally uses class-level dictionaries consumed by BaseSchema.
-ignore = ["RUF012"]
-
-[tool.ruff.lint.per-file-ignores]
-# These modules must extend sys.path before importing the platform, so their
-# imports legitimately come after executable code.
-"api_tester.py" = ["E402"]
-"databricks_test.py" = ["E402"]
-"products/philosophy_litterature/notebooks/*.py" = ["E402"]
+target-version = "py312"

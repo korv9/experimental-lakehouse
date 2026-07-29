@@ -1,1 +1,0 @@
-"""Philosophy Books data product."""

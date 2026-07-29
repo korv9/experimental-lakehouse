@@ -1,1 +1,1 @@
-"""Example works data product."""
+"""Example medallion data product."""

@@ -1,1 +1,1 @@
-"""Independently owned data products."""
+"""Data products."""

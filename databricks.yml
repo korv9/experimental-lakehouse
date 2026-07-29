@@ -1,42 +1,64 @@
-# Databricks Asset Bundle root.
-#
-# Deliberately thin: the CLI requires this filename, but every job lives in
-# orchestration.yml so there is one place to see what runs. Variables and
-# per-environment overrides belong here because they are bundle-wide.
-
 bundle:
-  name: experimental_lakehouse
-
-include:
-  - orchestration.yml
+  name: example_works
 
 variables:
   catalog:
-    description: Unity Catalog the jobs read from and write to.
+    description: Unity Catalog used by the medallion tables.
     default: dev_lakehouse
+  node_type:
+    description: Worker and driver node type.
+    default: i3.xlarge
 
-  job_cluster:
-    description: Cluster shared by every task in a job run.
-    type: complex
-    default:
-      spark_version: "15.4.x-scala2.12"
-      node_type_id: i3.xlarge
-      num_workers: 1
-      data_security_mode: SINGLE_USER   # required for Unity Catalog access
+resources:
+  jobs:
+    example_works:
+      name: "[${bundle.target}] example_works"
+      tasks:
+        - task_key: bronze
+          notebook_task:
+            notebook_path: ./products/example_works/bronze_example_works/notebook.py
+          job_cluster_key: shared
+          libraries:
+            - pypi:
+                package: "lakehouse-engine[dq,sharepoint]==2.1.1"
+
+        - task_key: silver
+          depends_on:
+            - task_key: bronze
+          notebook_task:
+            notebook_path: ./products/example_works/silver_example_works/notebook.py
+          job_cluster_key: shared
+          libraries:
+            - pypi:
+                package: "lakehouse-engine[dq,sharepoint]==2.1.1"
+
+        - task_key: gold
+          depends_on:
+            - task_key: silver
+          notebook_task:
+            notebook_path: ./products/example_works/gold_example_works/notebook.py
+          job_cluster_key: shared
+          libraries:
+            - pypi:
+                package: "lakehouse-engine[dq,sharepoint]==2.1.1"
+
+      job_clusters:
+        - job_cluster_key: shared
+          new_cluster:
+            spark_version: 17.3.x-scala2.13
+            node_type_id: ${var.node_type}
+            driver_node_type_id: ${var.node_type}
+            num_workers: 1
+            data_security_mode: SINGLE_USER
+            spark_env_vars:
+              EXAMPLE_WORKS_CATALOG: ${var.catalog}
+              EXAMPLE_WORKS_DQ_ROOT: /local_disk0/example_works/dq
 
 targets:
   dev:
-    mode: development                   # prefixes resources, pauses schedules
     default: true
-    variables:
-      catalog: dev_lakehouse
-
+    mode: development
   prod:
     mode: production
     variables:
       catalog: prod_lakehouse
-      job_cluster:
-        spark_version: "15.4.x-scala2.12"
-        node_type_id: i3.xlarge
-        num_workers: 4
-        data_security_mode: SINGLE_USER

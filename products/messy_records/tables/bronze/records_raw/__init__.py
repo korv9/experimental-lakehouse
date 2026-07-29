@@ -1,1 +1,0 @@
-"""Raw Records landing table."""

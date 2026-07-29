@@ -6,6 +6,7 @@ __pycache__/
 build/
 dist/
 .tmp-*/
+.upstream-lakehouse-engine/
 
 # Virtual environments
 .venv/
