@@ -1,21 +1,22 @@
 # Example Works
 
-`example_works` is the repository's only data product. It is intentionally small but exercises
-the complete Lakehouse Engine data-load flow: input, transformations, DQ and Delta output.
+This is the repository's only data product. Its three folders map directly to the medallion
+layers, while rejected Silver records stay beside the clean Silver table.
 
 ```text
 example_works/
-├── bronze_example_works/   JSON -> source-shaped Delta
-├── silver_example_works/   cleanup, typing and deduplication
-└── gold_example_works/     business aggregation
+|-- bronze_example_works/   preserve raw values and source metadata
+|-- silver_example_works/   normalize, validate, deduplicate and quarantine
+`-- gold_example_works/     aggregate by category and publication decade
 ```
 
-All infrastructure behavior comes from `lakehouse-engine==2.1.1`. Product notebooks contain
-only ACON configuration and a call to `load_data`; there are no local readers, writers, contract
-classes or pipeline wrappers.
+The transformation steps are plain PySpark DataFrame expressions. Lakehouse Engine handles
+source reads, data-quality execution and Delta/Unity Catalog output before and after those steps.
+There are no product helper functions or pipeline wrappers to navigate.
 
-Set these environment variables when needed:
+Environment variables:
 
 - `EXAMPLE_WORKS_CATALOG`: target catalog, default `dev_lakehouse`
 - `EXAMPLE_WORKS_SOURCE`: JSON source URI, default checked-in sample
 - `EXAMPLE_WORKS_DQ_ROOT`: Great Expectations metadata directory
+- `EXAMPLE_WORKS_PREVIEW`: show layer outputs in the notebook, default `true`
